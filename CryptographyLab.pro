@@ -14,9 +14,11 @@ TEMPLATE = app
 
 SOURCES += main.cpp\
         appgui.cpp \
-    simplesubstitutioner.cpp
+    simplesubstitutioner.cpp \
+    keyvalidator.cpp
 
 HEADERS  += appgui.h \
-    simplesubstitutioner.h
+    simplesubstitutioner.h \
+    keyvalidator.h
 
 FORMS    += appgui.ui

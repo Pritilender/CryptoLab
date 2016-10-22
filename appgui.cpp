@@ -3,6 +3,7 @@
 #include "simplesubstitutioner.h"
 #include "QVector"
 #include "QMessageBox"
+#include "keyvalidator.h"
 
 appGui::appGui(QWidget *parent) :
     QWidget(parent),
@@ -18,10 +19,12 @@ appGui::~appGui()
 
 void appGui::on_pushButton_clicked()
 {
-    QString key = "ijklmnopqrstuvwxyzabcdefgh";
-    SimpleSubstitutioner substitutioner(key);
-    QString res = substitutioner.substitute("abcd");
+    QString key = "ijklmnopqristuvwxyzabcdefgh";
+    //SimpleSubstitutioner substitutioner(key);
+    //QString res = substitutioner.substitute("abcd");
+    KeyValidator kvalid;
+    bool res = kvalid.validate(key);
     QMessageBox msg;
-    msg.setText(res);
+    msg.setText(res ? "true" : "false");
     msg.exec();
 }
