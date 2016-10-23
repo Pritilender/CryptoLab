@@ -20,6 +20,8 @@ private slots:
 
   void on_btnEncrypt_clicked();
 
+  void on_btnKeyLoad_clicked();
+
 private:
     Ui::appGui *ui;
 };

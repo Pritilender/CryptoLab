@@ -26,7 +26,7 @@
     <string>Encrypt</string>
    </property>
   </widget>
-  <widget class="QLineEdit" name="lineEdit">
+  <widget class="QLineEdit" name="lneKey">
    <property name="geometry">
     <rect>
      <x>20</x>
@@ -39,7 +39,7 @@
     <number>30</number>
    </property>
   </widget>
-  <widget class="QLabel" name="label">
+  <widget class="QLabel" name="lblKey">
    <property name="geometry">
     <rect>
      <x>20</x>
@@ -49,10 +49,10 @@
     </rect>
    </property>
    <property name="text">
-    <string>TextLabel</string>
+    <string>Ključ</string>
    </property>
   </widget>
-  <widget class="QPushButton" name="pushButton">
+  <widget class="QPushButton" name="btnKeyLoad">
    <property name="geometry">
     <rect>
      <x>30</x>
@@ -61,8 +61,56 @@
      <height>22</height>
     </rect>
    </property>
+   <property name="toolTip">
+    <string notr="true">Učitaj ključ iz fajla</string>
+   </property>
+   <property name="toolTipDuration">
+    <number>5000</number>
+   </property>
    <property name="text">
     <string>Učitaj ključ</string>
+   </property>
+   <property name="flat">
+    <bool>false</bool>
+   </property>
+  </widget>
+  <widget class="QLineEdit" name="lineEdit_2">
+   <property name="geometry">
+    <rect>
+     <x>140</x>
+     <y>80</y>
+     <width>113</width>
+     <height>22</height>
+    </rect>
+   </property>
+   <property name="maxLength">
+    <number>30</number>
+   </property>
+  </widget>
+  <widget class="QLabel" name="lblText">
+   <property name="geometry">
+    <rect>
+     <x>180</x>
+     <y>30</y>
+     <width>59</width>
+     <height>14</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>TextLabel</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_3">
+   <property name="geometry">
+    <rect>
+     <x>270</x>
+     <y>150</y>
+     <width>59</width>
+     <height>14</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>TextLabel</string>
    </property>
   </widget>
  </widget>

@@ -6,8 +6,8 @@
 class KeyValidator
 {
 public:
-  KeyValidator();
-  bool validate(QString key);
+    KeyValidator();
+    bool validate(QString key);
 };
 
 #endif // KEYVALIDATOR_H
