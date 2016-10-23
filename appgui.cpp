@@ -5,6 +5,8 @@
 #include "QMessageBox"
 #include "keyvalidator.h"
 #include "QFileDialog"
+#include "QFile"
+#include "QTextStream"
 
 appGui::appGui(QWidget *parent) :
     QWidget(parent),
@@ -18,26 +20,49 @@ appGui::~appGui()
     delete ui;
 }
 
-void appGui::on_pushButton_clicked()
-{
-}
-
 void appGui::on_btnEncrypt_clicked()
 {
-    QString key = "ijklmnopqristuvwxyzabcdefgh";
-    //SimpleSubstitutioner substitutioner(key);
-    //QString res = substitutioner.substitute("abcd");
-    KeyValidator kvalid;
-    bool res = kvalid.validate(key);
-    QMessageBox msg;
-    msg.setText(res ? "true" : "false");
-    msg.exec();
+    QString key = ui->lneKey->text();
+    QString text = ui->lneText->text();
+
+    SimpleSubstitutioner substitutioner(key);
+    QString res = substitutioner.substitute(text);
+
+    ui->lblRes->setText(res);
 }
 
 void appGui::on_btnKeyLoad_clicked()
 {
     QString fname = QFileDialog::getOpenFileName(this, "Odaberite fajl", "~/", "*.txt");
-    QMessageBox msg;
-    msg.setText(fname);
-    msg.exec();
+    QFile keyFile(fname);
+
+    if (keyFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        QTextStream keyReader(&keyFile);
+        QString key = keyReader.readAll();
+
+        ui->lneKey->setText("");
+        ui->lneKey->setText(key.trimmed());
+        ui->lneKey->setFocus();
+
+        keyFile.close();
+    } else {
+        QMessageBox msg;
+        msg.setText("Fajl nije nadjen");
+        msg.exec();
+    }
+}
+
+void appGui::on_lneKey_textChanged(const QString &arg1)
+{
+    KeyValidator kvalid;
+    QString key = arg1;
+
+    if (!kvalid.validate(key)) {
+        QMessageBox msg;
+        msg.setText("Dati ključ nije validan!");
+        msg.exec();
+        ui->btnEncrypt->setDisabled(true);
+    } else {
+        ui->btnEncrypt->setEnabled(true);
+    }
 }

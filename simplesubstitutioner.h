@@ -6,12 +6,12 @@
 
 class SimpleSubstitutioner
 {
-  private:
-  QMap<char, char> keyMapping;
+private:
+    QMap<char, char> keyMapping;
 
-  public:
-  SimpleSubstitutioner(QString key);
-  QString substitute(QString src);
+public:
+    SimpleSubstitutioner(QString key);
+    QString substitute(QString src);
 };
 
 #endif // SIMPLESUBSTITUTIONER_H

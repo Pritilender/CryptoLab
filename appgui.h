@@ -16,11 +16,11 @@ public:
     ~appGui();
 
 private slots:
-  void on_pushButton_clicked();
+    void on_btnEncrypt_clicked();
 
-  void on_btnEncrypt_clicked();
+    void on_btnKeyLoad_clicked();
 
-  void on_btnKeyLoad_clicked();
+    void on_lneKey_textChanged(const QString &arg1);
 
 private:
     Ui::appGui *ui;
