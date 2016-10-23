@@ -22,18 +22,19 @@ appGui::~appGui()
 
 void appGui::on_btnEncrypt_clicked()
 {
-    QString key = ui->lneKey->text();
+    ///TODO
+    /*QString key = ui->lneKey->text();
     QString text = ui->lneText->text();
 
     SimpleSubstitutioner substitutioner(key);
     QString res = substitutioner.substitute(text);
 
-    ui->lblRes->setText(res);
+    ui->lblRes->setText(res);*/
 }
 
 void appGui::on_btnKeyLoad_clicked()
 {
-    QString fname = QFileDialog::getOpenFileName(this, "Odaberite fajl", "~/", "*.txt");
+    QString fname = this->loadDirFile(false);
     QFile keyFile(fname);
 
     if (keyFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
@@ -65,4 +66,32 @@ void appGui::on_lneKey_textChanged(const QString &arg1)
     } else {
         ui->btnEncrypt->setEnabled(true);
     }
+}
+
+void appGui::on_btnInputDir_clicked()
+{
+    const QString inputDir = this->loadDirFile(true);
+
+    ui->lneInputDir->setText(inputDir);
+}
+
+
+void appGui::on_btnOutputDir_clicked()
+{
+    const QString inputDir = this->loadDirFile(true);
+
+    ui->lneOutputDir->setText(inputDir);
+}
+
+QString appGui::loadDirFile(bool dir)
+{
+    QString dirFileName;
+
+    if (dir) {
+        dirFileName = QFileDialog::getExistingDirectory(this, "Odaberite folder", "~/");
+    } else {
+        dirFileName = QFileDialog::getOpenFileName(this, "Odaberite fajl", "~/", "*.txt");
+    }
+
+    return dirFileName;
 }

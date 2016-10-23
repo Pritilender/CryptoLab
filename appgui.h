@@ -22,8 +22,13 @@ private slots:
 
     void on_lneKey_textChanged(const QString &arg1);
 
+    void on_btnInputDir_clicked();
+
+    void on_btnOutputDir_clicked();
+
 private:
     Ui::appGui *ui;
+    QString loadDirFile(bool dir);
 };
 
 #endif // APPGUI_H
