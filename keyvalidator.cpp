@@ -11,7 +11,7 @@ bool KeyValidator::validate(QString key){
   for (int i = 0; i < key.length() && valid; i++){
     if (i != key.lastIndexOf(key.at(i))) {
         valid = false;
-      }
+    }
   }
   return valid;
 }
