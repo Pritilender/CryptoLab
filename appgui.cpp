@@ -25,51 +25,12 @@ appGui::~appGui()
 
 void appGui::on_btnEncrypt_clicked()
 {
-    ///TODO
-    bool autowatch = ui->cbxWatch->isChecked();
-
-    if (autowatch) {
-        //autowatcher
-    } else {
-        //just read dirs and encrypt files
-        //This should read only txt or only crypto, depending on encrypt or decrypt button pressed
-        QDirIterator inputDir(ui->lneInputDir->text(), QStringList() << "*.txt", QDir::Files);
-        const QString outputDir = ui->lneOutputDir->text();
-
-        qDebug() << inputDir.path() << " i out: " << outputDir;
-
-        SimpleSubstitutioner substitutioner(ui->lneKey->text());
-
-        while (inputDir.hasNext()) {
-            QFile inFile(inputDir.next());
-            //This should switch extension depending on encryption and decryption
-            QFile outFile(outputDir + "/" + inputDir.fileInfo().baseName() + ".crypto");
-            if (inFile.open(QIODevice::ReadOnly | QIODevice::Text) && outFile.open(QIODevice::WriteOnly | QIODevice::Text)) {
-                QTextStream inReader(&inFile);
-                QTextStream fileOut(&outFile);
-                QString inputTxt;
-
-                while (!inReader.atEnd()) {
-                    inputTxt += inReader.readLine();
-                }
-
-                inputTxt.remove(QChar(' '), Qt::CaseInsensitive);
-                inputTxt.remove(QChar('\n'), Qt::CaseInsensitive);
-
-                qDebug() << inputTxt;
-
-                inputTxt = inputTxt.toLower();
-
-                fileOut << substitutioner.substitute(inputTxt, false);
-
-                qDebug() << "kraj za " << inputDir.fileInfo().baseName();
-            }
-        }
-    }
+    emit this->startAlgo(true);
 }
 
 void appGui::on_btnKeyLoad_clicked()
 {
+    ///TODO check if file exists and do the validation!
     QString fname = this->loadDirFile(false);
     QFile keyFile(fname);
 
@@ -82,6 +43,8 @@ void appGui::on_btnKeyLoad_clicked()
         ui->lneKey->setFocus();
 
         keyFile.close();
+
+        emit this->keyLoad(key);
     } else {
         QMessageBox msg;
         msg.setText("Fajl nije nadjen");
@@ -91,6 +54,7 @@ void appGui::on_btnKeyLoad_clicked()
 
 void appGui::on_lneKey_textChanged(const QString &arg1)
 {
+    ///TODO
     KeyValidator kvalid;
     QString key = arg1;
 
@@ -106,17 +70,23 @@ void appGui::on_lneKey_textChanged(const QString &arg1)
 
 void appGui::on_btnInputDir_clicked()
 {
+    ///TODO check if the directory exists
     const QString inputDir = this->loadDirFile(true);
 
     ui->lneInputDir->setText(inputDir);
+
+    emit inDirLoad(inputDir);
 }
 
 
 void appGui::on_btnOutputDir_clicked()
 {
-    const QString inputDir = this->loadDirFile(true);
+    ///TODO check if the directory exists
+    const QString outputDir = this->loadDirFile(true);
 
-    ui->lneOutputDir->setText(inputDir);
+    ui->lneOutputDir->setText(outputDir);
+
+    emit outDirLoad(outputDir);
 }
 
 QString appGui::loadDirFile(bool dir)
@@ -134,5 +104,10 @@ QString appGui::loadDirFile(bool dir)
 
 void appGui::on_btnDecrypt_clicked()
 {
+    emit startAlgo(false);
+}
 
+void appGui::on_cbxWatch_clicked(bool checked)
+{
+    emit watchModeChanged(checked);
 }

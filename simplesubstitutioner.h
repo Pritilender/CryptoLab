@@ -1,17 +1,18 @@
 #ifndef SIMPLESUBSTITUTIONER_H
 #define SIMPLESUBSTITUTIONER_H
-#include "QMap"
-#include "QString"
-#include "QVector"
+#include <QMap>
+#include <QString>
+#include <QVector>
+#include <cryptoalgorithm.h>
 
-class SimpleSubstitutioner
+class SimpleSubstitutioner: public CryptoAlgorithm
 {
 private:
     QMap<char, char> keyMapping;
 
 public:
     SimpleSubstitutioner(QString key);
-    QString substitute(QString src, bool encrypt);
+    QString runAlgo(QString src, bool encrypt);
 };
 
 #endif // SIMPLESUBSTITUTIONER_H

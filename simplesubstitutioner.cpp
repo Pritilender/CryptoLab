@@ -1,6 +1,7 @@
 #include "simplesubstitutioner.h"
 
 SimpleSubstitutioner::SimpleSubstitutioner(QString key)
+    : CryptoAlgorithm()
 {
     char letterA = 'a';
     for (int i = 0; i < key.length(); i++) {
@@ -8,7 +9,7 @@ SimpleSubstitutioner::SimpleSubstitutioner(QString key)
     }
 }
 
-QString SimpleSubstitutioner::substitute(QString src, bool encrypt)
+QString SimpleSubstitutioner::runAlgo(const QString src, bool encrypt)
 {
     QString result;
 

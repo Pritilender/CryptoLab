@@ -15,10 +15,13 @@ TEMPLATE = app
 SOURCES += main.cpp\
         appgui.cpp \
     simplesubstitutioner.cpp \
-    keyvalidator.cpp
+    keyvalidator.cpp \
+    cryptodirmanip.cpp
 
 HEADERS  += appgui.h \
     simplesubstitutioner.h \
-    keyvalidator.h
+    keyvalidator.h \
+    cryptodirmanip.h \
+    cryptoalgorithm.h
 
 FORMS    += appgui.ui

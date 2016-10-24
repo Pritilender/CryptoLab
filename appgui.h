@@ -28,6 +28,15 @@ private slots:
 
     void on_btnDecrypt_clicked();
 
+    void on_cbxWatch_clicked(bool checked);
+
+signals:
+    void inDirLoad(const QString);
+    void outDirLoad(const QString);
+    void keyLoad(const QString);
+    void watchModeChanged(const bool);
+    void startAlgo(const bool);
+
 private:
     Ui::appGui *ui;
     QString loadDirFile(bool dir);
