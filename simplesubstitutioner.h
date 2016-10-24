@@ -11,7 +11,7 @@ private:
 
 public:
     SimpleSubstitutioner(QString key);
-    QString substitute(QString src);
+    QString substitute(QString src, bool encrypt);
 };
 
 #endif // SIMPLESUBSTITUTIONER_H

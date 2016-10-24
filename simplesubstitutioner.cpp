@@ -8,13 +8,17 @@ SimpleSubstitutioner::SimpleSubstitutioner(QString key)
     }
 }
 
-QString SimpleSubstitutioner::substitute(QString src)
+QString SimpleSubstitutioner::substitute(QString src, bool encrypt)
 {
-    QString crypted;
+    QString result;
+
 
     for (int i = 0; i < src.length(); i++) {
-        crypted.append(this->keyMapping[src.at(i).toLatin1()]);
+        const char inLetter = src.at(i).toLatin1();
+        const char outLetter = encrypt ? this->keyMapping[inLetter] : this->keyMapping.key(inLetter);
+
+        result.append(outLetter);
     }
 
-    return crypted;
+    return result;
 }

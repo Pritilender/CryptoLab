@@ -32,14 +32,18 @@ void appGui::on_btnEncrypt_clicked()
         //autowatcher
     } else {
         //just read dirs and encrypt files
+        //This should read only txt or only crypto, depending on encrypt or decrypt button pressed
         QDirIterator inputDir(ui->lneInputDir->text(), QStringList() << "*.txt", QDir::Files);
         const QString outputDir = ui->lneOutputDir->text();
+
+        qDebug() << inputDir.path() << " i out: " << outputDir;
 
         SimpleSubstitutioner substitutioner(ui->lneKey->text());
 
         while (inputDir.hasNext()) {
             QFile inFile(inputDir.next());
-            QFile outFile(outputDir + "/" + inputDir.fileInfo().baseName() + ".cypto");
+            //This should switch extension depending on encryption and decryption
+            QFile outFile(outputDir + "/" + inputDir.fileInfo().baseName() + ".crypto");
             if (inFile.open(QIODevice::ReadOnly | QIODevice::Text) && outFile.open(QIODevice::WriteOnly | QIODevice::Text)) {
                 QTextStream inReader(&inFile);
                 QTextStream fileOut(&outFile);
@@ -56,7 +60,7 @@ void appGui::on_btnEncrypt_clicked()
 
                 inputTxt = inputTxt.toLower();
 
-                fileOut << substitutioner.substitute(inputTxt);
+                fileOut << substitutioner.substitute(inputTxt, false);
 
                 qDebug() << "kraj za " << inputDir.fileInfo().baseName();
             }
