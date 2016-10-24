@@ -26,6 +26,8 @@ private slots:
 
     void on_btnOutputDir_clicked();
 
+    void on_btnDecrypt_clicked();
+
 private:
     Ui::appGui *ui;
     QString loadDirFile(bool dir);

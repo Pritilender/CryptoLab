@@ -7,6 +7,9 @@
 #include "QFileDialog"
 #include "QFile"
 #include "QTextStream"
+#include "QDirIterator"
+
+#include "QDebug"
 
 appGui::appGui(QWidget *parent) :
     QWidget(parent),
@@ -23,13 +26,42 @@ appGui::~appGui()
 void appGui::on_btnEncrypt_clicked()
 {
     ///TODO
-    /*QString key = ui->lneKey->text();
-    QString text = ui->lneText->text();
+    bool autowatch = ui->cbxWatch->isChecked();
 
-    SimpleSubstitutioner substitutioner(key);
-    QString res = substitutioner.substitute(text);
+    if (autowatch) {
+        //autowatcher
+    } else {
+        //just read dirs and encrypt files
+        QDirIterator inputDir(ui->lneInputDir->text(), QStringList() << "*.txt", QDir::Files);
+        const QString outputDir = ui->lneOutputDir->text();
 
-    ui->lblRes->setText(res);*/
+        SimpleSubstitutioner substitutioner(ui->lneKey->text());
+
+        while (inputDir.hasNext()) {
+            QFile inFile(inputDir.next());
+            QFile outFile(outputDir + "/" + inputDir.fileInfo().baseName() + ".cypto");
+            if (inFile.open(QIODevice::ReadOnly | QIODevice::Text) && outFile.open(QIODevice::WriteOnly | QIODevice::Text)) {
+                QTextStream inReader(&inFile);
+                QTextStream fileOut(&outFile);
+                QString inputTxt;
+
+                while (!inReader.atEnd()) {
+                    inputTxt += inReader.readLine();
+                }
+
+                inputTxt.remove(QChar(' '), Qt::CaseInsensitive);
+                inputTxt.remove(QChar('\n'), Qt::CaseInsensitive);
+
+                qDebug() << inputTxt;
+
+                inputTxt = inputTxt.toLower();
+
+                fileOut << substitutioner.substitute(inputTxt);
+
+                qDebug() << "kraj za " << inputDir.fileInfo().baseName();
+            }
+        }
+    }
 }
 
 void appGui::on_btnKeyLoad_clicked()
@@ -94,4 +126,9 @@ QString appGui::loadDirFile(bool dir)
     }
 
     return dirFileName;
+}
+
+void appGui::on_btnDecrypt_clicked()
+{
+
 }
