@@ -59,17 +59,15 @@ void CryptoDirManip::run(const bool encryption)
             QString inputTxt;
 
             while (!inReader.atEnd()) {
-                inputTxt += inReader.readLine();
+                inputTxt = inReader.readLine();
+
+                inputTxt.remove(QRegExp("[^A-Za-z]"));
+
+                inputTxt = inputTxt.toLower();
+
+                //maybe not add a new line?
+                fileOut << this->algoRunner->runAlgo(inputTxt, encryption) << "\n";
             }
-
-            inputTxt.remove(QChar(' '), Qt::CaseInsensitive);
-            inputTxt.remove(QChar('\n'), Qt::CaseInsensitive);
-
-            qDebug() << inputTxt;
-
-            inputTxt = inputTxt.toLower();
-
-            fileOut << this->algoRunner->runAlgo(inputTxt, encryption);
 
             qDebug() << "kraj za " << inputDir.fileInfo().baseName();
         }
