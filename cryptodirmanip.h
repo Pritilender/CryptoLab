@@ -7,6 +7,8 @@
 #include <QQueue>
 #include <QFileInfo>
 #include <QObject>
+#include <QtConcurrent>
+#include <QFuture>
 
 /**
  * @brief The CryptoDirManip class
@@ -22,8 +24,10 @@ private:
     bool watchMode = false;
     QFileSystemWatcher fsWatcher;
     QQueue<QFileInfo> fileQueue;
+    int oldLength = 0;
+    QFuture<void> conc;
 
-
+    void printDir();
 public:
     CryptoDirManip();
 

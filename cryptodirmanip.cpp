@@ -16,7 +16,7 @@ CryptoDirManip::CryptoDirManip()
 void CryptoDirManip::loadInputDir(const QString &input)
 {
     this->inputDir = input;
-    qDebug() << input;
+
     this->fsWatcher.addPath(this->inputDir);
 }
 
@@ -37,8 +37,9 @@ void CryptoDirManip::setWatchMode(const bool mode)
 
 void CryptoDirManip::run(const bool encryption)
 {
+    //this->conc = QtConcurrent::run(this, &CryptoDirManip::printDir);
     const QString inExtension = encryption ? "*.txt" : "*.crypto";
-    const QString outExtension = encryption ? "*.crypto" : "*.txt";
+    const QString outExtension = encryption ? ".crypto" : ".txt";
     //if (autowatch) {
     //autowatcher
     //} else {
@@ -68,15 +69,27 @@ void CryptoDirManip::run(const bool encryption)
 
             inputTxt = inputTxt.toLower();
 
-            fileOut << this->algoRunner->runAlgo(inputTxt, false);
+            fileOut << this->algoRunner->runAlgo(inputTxt, encryption);
 
             qDebug() << "kraj za " << inputDir.fileInfo().baseName();
         }
     }
+    this->fileQueue.enqueue(*(new QFileInfo()));
     //}
 }
 
 void CryptoDirManip::queueManip(const QString &path)
 {
+    this->fileQueue.enqueue(*(new QFileInfo()));
     qDebug() << "bla" << path;
+}
+
+void CryptoDirManip::printDir()
+{
+    while (true) {
+        if (this->oldLength != this->fileQueue.length()) {
+            this->oldLength = this->fileQueue.length();
+            qDebug() << this->fileQueue.length();
+        }
+    }
 }
