@@ -2,9 +2,51 @@
 #include <simplesubstitutioner.h>
 #include <QDirIterator>
 #include <QTextStream>
-#include <functional>
+#include <sys/inotify.h>
+#include <sys/types.h>
+#include <unistd.h>
 
 #include <QDebug>
+
+#define EVENT_SIZE (sizeof (struct inotify_event))
+#define BUF_LEN (1024*(EVENT_SIZE + 16))
+
+bool isTxtCrypt(char* fName){
+    QString file(fName);
+
+    return file.contains(QRegularExpression("([.]txt|[.]crypto)$"));
+}
+
+void CryptoDirManip::inotifyThread()
+{
+    while (true) {
+        while (this->watchMode) {
+            char buffer[BUF_LEN];
+            int i = 0;
+            int length = read(this->fd, buffer, BUF_LEN);
+
+            if (length < 0) {
+                qDebug() << "read";
+                exit(1);
+            }
+
+            while (i < length) {
+                struct inotify_event *event = ( struct inotify_event * ) &buffer[ i ];
+                if ( event->len && !(event->mask & IN_ISDIR) && isTxtCrypt(event->name)) {
+                    if ( event->mask & IN_CREATE ) {
+                        qDebug() << "The file" << event->name << "was created.";
+                    } else if ( event->mask & IN_DELETE ) {
+                        qDebug() << "The file" << event->name << "was deleted.";
+                    } else if ( event->mask & IN_MODIFY ) {
+                        qDebug() << "The file" << event->name << "was modified.";
+                    }
+                }
+                i += EVENT_SIZE + event->len;
+
+            }
+        }
+    }
+}
 
 void fileToAlgo(const CryptoFileInfo &current)
 {
@@ -45,8 +87,21 @@ CryptoDirManip::CryptoDirManip()
     : QObject()
 {
     this->algoRunner = nullptr;
-    QObject::connect(&this->fsWatcher, SIGNAL(directoryChanged(QString)), this,
-                     SLOT(queueManip(QString)));
+    //QObject::connect(&this->fsWatcher, SIGNAL(directoryChanged(QString)), this,
+    //                 SLOT(queueManip(QString)));
+    this->fd = inotify_init();
+
+    if (this->fd < 0) {
+        qDebug() << "error for inotify";
+        exit(0);
+    }
+
+    this->queueThread = QtConcurrent::run(this, &CryptoDirManip::inotifyThread);
+}
+
+CryptoDirManip::~CryptoDirManip()
+{
+    close(this->fd);
 }
 
 void CryptoDirManip::loadInputDir(const QString &input)
@@ -87,9 +142,11 @@ void CryptoDirManip::setWatchMode(const bool mode)
     this->watchMode = mode;
 
     if (this->watchMode) {
-        this->fsWatcher.addPath(this->inputDir);
+        //this->fsWatcher.addPath(this->inputDir);
+        this->wd = inotify_add_watch(this->fd, this->inputDir.toLatin1(),
+                                     IN_MODIFY | IN_CREATE | IN_DELETE);
     } else {
-        this->fsWatcher.removePath(this->inputDir);
+        inotify_rm_watch(this->fd, this->wd);
     }
 }
 
@@ -158,49 +215,5 @@ int findByName(const QList<CryptoFileInfo> &fileQueue, const QString fileName)
 
 void CryptoDirManip::queueManip(const QString &path)
 {
-    QDirIterator dirIt(path);
 
-    mutex.lock();
-    while (dirIt.hasNext()) {
-        QFileInfo next = QFileInfo(dirIt.next());
-        CryptoFileInfo element = {
-            next.baseName(),
-            this->encryption,
-            next.absoluteFilePath(),
-            next.suffix(),
-            this->outputDir,
-            this->algoRunner,
-            &this->mutex,
-            next.lastModified(),
-            next.created(),
-            next.lastRead()
-        };
-
-        int fileIndex = findByName(this->fileQueue, element.baseName);
-        if (fileIndex == -1) {
-            qDebug() << "New file";
-            // new file
-            this->fileQueue.append(element);
-        } else if (isModifiedFile(this->fileQueue, element.baseName, element.lastModified) != -1) {
-            // was already in queue and is just modified
-            qDebug() << "Modified";
-            continue;
-        } else {
-            qDebug() << "Deleted";
-            // remove it
-            this->fileQueue.removeAt(fileIndex);
-        }
-    }
-    mutex.unlock();
-
-}
-
-void CryptoDirManip::printDir()
-{
-    while (true) {
-        if (this->oldLength != this->fileQueue.length()) {
-            this->oldLength = this->fileQueue.length();
-            qDebug() << this->fileQueue.length();
-        }
-    }
 }

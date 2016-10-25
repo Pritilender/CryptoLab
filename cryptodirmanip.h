@@ -12,6 +12,7 @@
 #include <QMutex>
 #include <QDateTime>
 
+
 ///TODO something with this graaa
 struct CryptoFileInfo {
     QString baseName;
@@ -47,12 +48,17 @@ private:
     QList<CryptoFileInfo> fileQueue;
     int oldLength = 0;
     QFuture<void> conc;
-    //QFuture<void> queueThread;
+    QFuture<void> queueThread;
     QMutex mutex;
+    //inotify
+    int fd;
+    int wd;
 
-    void printDir();
+    void inotifyThread();
+
 public:
     CryptoDirManip();
+    virtual ~CryptoDirManip();
 
 public slots:
     /**
