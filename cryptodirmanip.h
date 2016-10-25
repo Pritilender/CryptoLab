@@ -4,11 +4,30 @@
 #include <QString>
 #include <cryptoalgorithm.h>
 #include <QFileSystemWatcher>
-#include <QQueue>
+#include <QList>
 #include <QFileInfo>
 #include <QObject>
 #include <QtConcurrent>
 #include <QFuture>
+#include <QMutex>
+#include <QDateTime>
+
+///TODO something with this graaa
+struct CryptoFileInfo {
+    QString baseName;
+    bool encryption;
+    QString absoluteFilePath;
+    QString suffix;
+    QString outputDir;
+    CryptoAlgorithm* algoRunner;
+    QMutex* mutex;
+    QDateTime lastModified;
+    QDateTime created;
+    QDateTime lastRead; //???
+    bool operator==(const CryptoFileInfo& rhs){
+        return this->baseName == rhs.baseName;
+    }
+} typedef CryptoFileInfo;
 
 /**
  * @brief The CryptoDirManip class
@@ -22,10 +41,14 @@ private:
     QString outputDir;
     CryptoAlgorithm *algoRunner;
     bool watchMode = false;
+    bool encryption = false;
+    bool running = false;
     QFileSystemWatcher fsWatcher;
-    QQueue<QFileInfo> fileQueue;
+    QList<CryptoFileInfo> fileQueue;
     int oldLength = 0;
     QFuture<void> conc;
+    //QFuture<void> queueThread;
+    QMutex mutex;
 
     void printDir();
 public:
