@@ -11,7 +11,8 @@
 #define EVENT_SIZE (sizeof (struct inotify_event))
 #define BUF_LEN (1024*(EVENT_SIZE + 16))
 
-bool isTxtCrypt(char* fName){
+bool isTxtCrypt(char *fName)
+{
     QString file(fName);
 
     return file.contains(QRegularExpression("([.]txt|[.]crypto)$"));
@@ -19,7 +20,7 @@ bool isTxtCrypt(char* fName){
 
 void CryptoDirManip::inotifyThread()
 {
-    while (true) {
+    while (!this->closeApp) {
         while (this->watchMode) {
             char buffer[BUF_LEN];
             int i = 0;
@@ -30,65 +31,37 @@ void CryptoDirManip::inotifyThread()
                 exit(1);
             }
 
+            this->mutex.lock();
             while (i < length) {
                 struct inotify_event *event = ( struct inotify_event * ) &buffer[ i ];
                 if ( event->len && !(event->mask & IN_ISDIR) && isTxtCrypt(event->name)) {
                     if ( event->mask & IN_CREATE ) {
+                        // New file, just add it to the queue
                         qDebug() << "The file" << event->name << "was created.";
-                    } else if ( event->mask & IN_DELETE ) {
-                        qDebug() << "The file" << event->name << "was deleted.";
-                    } else if ( event->mask & IN_MODIFY ) {
+                        this->fileNames.append(QString(event->name));
+                    } else if ( event->mask & IN_MODIFY && this->running ) {
+                        // File is modified and algo is running, so we need to readd it
                         qDebug() << "The file" << event->name << "was modified.";
+                        this->fileNames.append(QString(event->name));
+                    } else if ( event->mask & IN_DELETE && !this->running) {
+                        // If algo is not running and we need to remove the file from queue
+                        qDebug() << "The file" << event->name << "was deleted.";
+                        this->fileNames.removeOne(QString(event->name));
                     }
                 }
                 i += EVENT_SIZE + event->len;
 
             }
+            this->mutex.unlock();
         }
     }
 }
-
-void fileToAlgo(const CryptoFileInfo &current)
-{
-    qDebug() << "Pocetak za " << current.baseName;
-
-    const QString outExtension = current.encryption ? ".crypto" : ".txt";
-    QFile inFile(current.absoluteFilePath);
-    QSaveFile outFile(current.outputDir + "/" + current.baseName + outExtension);
-
-
-    if (inFile.open(QIODevice::ReadOnly | QIODevice::Text)
-            && outFile.open(QIODevice::WriteOnly | QIODevice::Text)) {
-
-        QTextStream inReader(&inFile);
-        QTextStream fileOut(&outFile);
-        QString inputTxt;
-
-        while (!inReader.atEnd()) {
-            inputTxt = inReader.readLine();
-
-            inputTxt.remove(QRegExp("[^A-Za-z]"));
-
-            inputTxt = inputTxt.toLower();
-
-            //maybe not add a new line?
-            fileOut << current.algoRunner->runAlgo(inputTxt, current.encryption) << "\n";
-        }
-
-        qDebug() << "kraj za " << current.baseName;
-
-        inFile.close();
-        outFile.commit();
-    }
-}
-
 
 CryptoDirManip::CryptoDirManip()
     : QObject()
 {
     this->algoRunner = nullptr;
-    //QObject::connect(&this->fsWatcher, SIGNAL(directoryChanged(QString)), this,
-    //                 SLOT(queueManip(QString)));
+
     this->fd = inotify_init();
 
     if (this->fd < 0) {
@@ -97,10 +70,23 @@ CryptoDirManip::CryptoDirManip()
     }
 
     this->queueThread = QtConcurrent::run(this, &CryptoDirManip::inotifyThread);
+    this->conc = QtConcurrent::run(this, &CryptoDirManip::queueManip);
+
+    for (int i = 0; i < 8; i++) {
+        this->mapThread.append(QFuture<void>());
+    }
 }
 
 CryptoDirManip::~CryptoDirManip()
 {
+    this->closeApp = true;
+    //this->conc.cancel();
+    //this->queueThread.cancel();
+    for (int i = 0; i < this->mapThread.length(); i++){
+        this->mapThread[i].cancel();
+    }
+    //this->conc.waitForFinished();
+    //this->queueThread.waitForFinished();
     close(this->fd);
 }
 
@@ -111,19 +97,7 @@ void CryptoDirManip::loadInputDir(const QString &input)
 
     while (inputDir.hasNext()) {
         QFileInfo next(inputDir.next());
-        CryptoFileInfo element = {
-            next.baseName(),
-            true,
-            next.absoluteFilePath(),
-            next.suffix(),
-            "",
-            nullptr,
-            nullptr,
-            next.lastModified(),
-            next.created(),
-            next.lastRead()
-        };
-        this->fileQueue.append(element);
+        this->fileNames.append(next.fileName());
     }
 }
 
@@ -142,7 +116,6 @@ void CryptoDirManip::setWatchMode(const bool mode)
     this->watchMode = mode;
 
     if (this->watchMode) {
-        //this->fsWatcher.addPath(this->inputDir);
         this->wd = inotify_add_watch(this->fd, this->inputDir.toLatin1(),
                                      IN_MODIFY | IN_CREATE | IN_DELETE);
     } else {
@@ -150,70 +123,105 @@ void CryptoDirManip::setWatchMode(const bool mode)
     }
 }
 
+QString inputDirPath;
+QString outputDirPath;
+bool isEncryptionRunning;
+CryptoAlgorithm *ptAlgoRunner;
+
+void CryptoDirManip::fileToAlgo(const QString current)
+{
+    qDebug() << "Pocetak za " << current;
+
+    QString base = current;
+    const QString outExtension = isEncryptionRunning ? ".crypto" : ".txt";
+    const QString inExtension = isEncryptionRunning ? ".txt" : ".crypto";
+    QFile inFile(inputDirPath + "/" + current);
+    QSaveFile outFile(outputDirPath + "/" + base.remove(inExtension) + outExtension);
+
+
+    if (inFile.open(QIODevice::ReadOnly | QIODevice::Text)
+            && outFile.open(QIODevice::WriteOnly | QIODevice::Text)) {
+
+        QTextStream inReader(&inFile);
+        QTextStream fileOut(&outFile);
+        QString inputTxt;
+
+        while (!inReader.atEnd()) {
+            inputTxt = inReader.readLine();
+
+            inputTxt.remove(QRegExp("[^A-Za-z]"));
+
+            inputTxt = inputTxt.toLower();
+
+            //maybe not add a new line?
+            fileOut << ptAlgoRunner->runAlgo(inputTxt, isEncryptionRunning) << "\n";
+        }
+
+        qDebug() << "kraj za " << current;
+
+        inFile.close();
+        outFile.commit();
+
+        this->mutex.lock();
+        QFile outFile(this->configPath);
+        QTextStream cfileOut(&outFile);
+        if (outFile.open(QIODevice::ReadWrite | QIODevice::Text | QIODevice::Truncate)) {
+            cfileOut << QDateTime().currentDateTime().toTime_t();
+            outFile.close();
+        }
+        this->mutex.unlock();
+    }
+}
+
 void CryptoDirManip::run(const bool encryption)
 {
-    this->running = true;
-    this->encryption = false;
-    //this->conc = QtConcurrent::run(this, &CryptoDirManip::printDir);
-    const QString inExtension = encryption ? "txt" : "crypto";
+    const QString inExtension = encryption ? ".txt" : ".crypto";
 
-    QMutableListIterator<CryptoFileInfo> it(this->fileQueue);
-
-    // remove unneeded files from the Queue
-    while (it.hasNext()) {
-        CryptoFileInfo next = it.next();
-        if (next.suffix != inExtension) {
-            it.remove();
-        }
-        next.encryption = encryption;
-        next.algoRunner = this->algoRunner;
-        next.outputDir = this->outputDir;
-        next.mutex = &this->mutex;
-        it.setValue(next);
-    }
-
-    it.toFront();
+    QMutableStringListIterator it(this->fileNames);
 
     this->mutex.lock();
-    this->conc = QtConcurrent::map(this->fileQueue, fileToAlgo);
-    this->fileQueue.clear();
+    qDebug() << "Neko zvao run?";
+    this->running = true;
+    this->encryption = encryption;
+    while (it.hasNext()) {
+        QString next = it.next();
+
+        if (!next.endsWith(inExtension)) {
+            it.remove();
+        }
+    }
+    qDebug() << "Valjda ce radi";
     this->mutex.unlock();
-
-    qDebug() << "byebye";
 }
 
-int isModifiedFile(const QList<CryptoFileInfo> &fileQueue, const QString fileName,
-                   const QDateTime lastModified)
+void CryptoDirManip::queueManip()
 {
-    QListIterator<CryptoFileInfo> fileIt(fileQueue);
-    int index = -1;
+    while (!this->closeApp) {
+        if (this->running) {
+            this->mutex.lock();
+            if (this->fileNames.length() != 0) {
+                qDebug() << "Enkriptuj!";
+                inputDirPath = this->inputDir;
+                outputDirPath = this->outputDir;
+                isEncryptionRunning = this->encryption;
+                ptAlgoRunner = this->algoRunner;
+                foreach (QString fn, this->fileNames) {
+                    qDebug() << fn;
+                }
 
-    while (index == -1 && fileIt.hasNext()) {
-        CryptoFileInfo next = fileIt.next();
-        if (next.baseName == fileName && next.lastModified < lastModified) {
-            index = fileQueue.indexOf(next);
+                for (int i = 0; i < this->fileNames.length() && i < 8; i++) {
+                    if (!this->mapThread[i].isRunning()) {
+                        QString fName = this->fileNames.takeFirst();
+                        this->mapThread[i] = QtConcurrent::run(this, &CryptoDirManip::fileToAlgo, fName);
+                    }
+                }
+                qDebug() << "Ce zavrsi!";
+            }
+            if (!this->watchMode && this->fileNames.length() == 0) {
+                this->running = false;
+            }
+            this->mutex.unlock();
         }
     }
-
-    return index;
-}
-
-int findByName(const QList<CryptoFileInfo> &fileQueue, const QString fileName)
-{
-    QListIterator<CryptoFileInfo> fileIt(fileQueue);
-    int index = -1;
-
-    while (index == -1 && fileIt.hasNext()) {
-        CryptoFileInfo next = fileIt.next();
-        if (next.baseName == fileName) {
-            index = fileQueue.indexOf(next);
-        }
-    }
-
-    return index;
-}
-
-void CryptoDirManip::queueManip(const QString &path)
-{
-
+    this->fileNames.clear();
 }

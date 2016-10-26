@@ -3,7 +3,6 @@
 
 #include <QString>
 #include <cryptoalgorithm.h>
-#include <QFileSystemWatcher>
 #include <QList>
 #include <QFileInfo>
 #include <QObject>
@@ -44,17 +43,29 @@ private:
     bool watchMode = false;
     bool encryption = false;
     bool running = false;
-    QFileSystemWatcher fsWatcher;
+    bool closeApp = false;
     QList<CryptoFileInfo> fileQueue;
     int oldLength = 0;
-    QFuture<void> conc;
+    QList<QFuture<void>> mapThread;
     QFuture<void> queueThread;
+    QFuture<void> conc;
     QMutex mutex;
     //inotify
     int fd;
     int wd;
+    QString configPath = "config.file";
+
+    QList<QString> fileNames;
 
     void inotifyThread();
+    /**
+     * @brief Queue manipulation function
+     * @details This slot is used for adding, deleting and renaming paths
+     * of files stored in the input dir. It checks what had provoked the signal.
+     * @param path Path to be added to a queue
+     */
+    void queueManip();
+    void fileToAlgo(const QString current);
 
 public:
     CryptoDirManip();
@@ -87,13 +98,6 @@ public slots:
      */
     void run(const bool encryption);
     //stop();
-    /**
-     * @brief Queue manipulation function
-     * @details This slot is used for adding, deleting and renaming paths
-     * of files stored in the input dir. It checks what had provoked the signal.
-     * @param path Path to be added to a queue
-     */
-    void queueManip(const QString &path);
 };
 
 #endif // CRYPTODIRMANIP_H

@@ -2,6 +2,7 @@
 #define APPGUI_H
 
 #include <QWidget>
+#include <cryptodirmanip.h>
 
 namespace Ui {
 class appGui;

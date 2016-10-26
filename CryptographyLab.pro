@@ -16,12 +16,14 @@ SOURCES += main.cpp\
         appgui.cpp \
     simplesubstitutioner.cpp \
     keyvalidator.cpp \
-    cryptodirmanip.cpp
+    cryptodirmanip.cpp \
+    cryptofileinfo.cpp
 
 HEADERS  += appgui.h \
     simplesubstitutioner.h \
     keyvalidator.h \
     cryptodirmanip.h \
-    cryptoalgorithm.h
+    cryptoalgorithm.h \
+    cryptofileinfo.h
 
 FORMS    += appgui.ui
