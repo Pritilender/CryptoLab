@@ -5,7 +5,7 @@
 class CryptoAlgorithm
 {
 public:
-    CryptoAlgorithm(){}
+    CryptoAlgorithm() {}
     /**
      * @brief Run the cryptography algorithm in encryption or decryption mode.
      * @param src Source string
@@ -13,6 +13,7 @@ public:
      * @return Encrypted or decrypted string
      */
     virtual QString runAlgo(const QString src, bool encrypt) = 0;
+    virtual QString returnKey() = 0;
 };
 
 #endif // CRYPTOALGORITHM_H

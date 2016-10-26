@@ -28,7 +28,7 @@ void CryptoDirManip::inotifyThread()
 
             if (length < 0) {
                 qDebug() << "read";
-                exit(1);
+                return;
             }
 
             this->mutex.lock();
@@ -39,10 +39,12 @@ void CryptoDirManip::inotifyThread()
                         // New file, just add it to the queue
                         qDebug() << "The file" << event->name << "was created.";
                         this->fileNames.append(QString(event->name));
-                    } else if ( event->mask & IN_MODIFY && this->running ) {
+                    } else if ( event->mask & IN_MODIFY ) {
                         // File is modified and algo is running, so we need to readd it
                         qDebug() << "The file" << event->name << "was modified.";
-                        this->fileNames.append(QString(event->name));
+                        if (!this->fileNames.contains(QString(event->name))) {
+                            this->fileNames.append(QString(event->name));
+                        }
                     } else if ( event->mask & IN_DELETE && !this->running) {
                         // If algo is not running and we need to remove the file from queue
                         qDebug() << "The file" << event->name << "was deleted.";
@@ -55,6 +57,43 @@ void CryptoDirManip::inotifyThread()
             this->mutex.unlock();
         }
     }
+}
+
+QList<QFileInfo> filterByBaseNames(QList<QFileInfo> inDir, QList<QFileInfo>outDir)
+{
+    //SWAP THIS AND NEXT ONE!
+    QList<QFileInfo> filtered;
+    QListIterator<QFileInfo> inIt(inDir);
+
+    while (inIt.hasNext()) {
+        QFileInfo input(inIt.next());
+
+        bool found = false;
+        for (int i = 0; !found && i < outDir.length(); i++) {
+            if (outDir[i].baseName() == input.baseName()) {
+                filtered.append(input);
+                found = true;
+            }
+        }
+    }
+
+    return filtered;
+}
+
+QList<QString> filterByDateModified(QList<QFileInfo> inDir, uint lastModified)
+{
+    QList<QString> filtered;
+    QListIterator<QFileInfo> inIt(inDir);
+
+    while (inIt.hasNext()) {
+        QFileInfo next(inIt.next());
+
+        if (lastModified < next.lastModified().toTime_t()) {
+            filtered.append(next.fileName());
+        }
+    }
+
+    return filtered;
 }
 
 CryptoDirManip::CryptoDirManip()
@@ -75,6 +114,49 @@ CryptoDirManip::CryptoDirManip()
     for (int i = 0; i < 8; i++) {
         this->mapThread.append(QFuture<void>());
     }
+
+    this->fileMutex.lock();
+    QFile configFile(this->configPath);
+    if (configFile.exists()) {
+        if (configFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
+            QTextStream cFile(&configFile);
+            QString key;
+            uint lastModified;
+
+            this->encryption = (bool)cFile.readLine().toInt();
+            this->running = (bool)cFile.readLine().toInt();
+            this->watchMode = (bool)cFile.readLine().toInt();
+
+            cFile >> this->inputDir;
+            cFile >> this->outputDir;
+            cFile >> key;
+            this->algoRunner = new SimpleSubstitutioner(key);
+            qDebug() << cFile.readLine();
+            lastModified = cFile.readLine().toUInt();
+            configFile.close();
+
+            QString inExt = this->encryption ? "*.txt" : "*.crypto";
+            QString outExt = this->encryption ? "*.crypto" : "*.txt";
+
+            this->mutex.lock();
+            QDirIterator outDir(this->outputDir, QStringList() << outExt, QDir::Files);
+            QList<QFileInfo> outDirFInfo;
+            QDirIterator inDir(this->inputDir, QStringList() << inExt, QDir::Files);
+            QList<QFileInfo> inDirFInfo;
+
+            while (outDir.hasNext()) {
+                outDirFInfo.append(QFileInfo(outDir.next()));
+            }
+
+            while (inDir.hasNext()) {
+                inDirFInfo.append(QFileInfo(inDir.next()));
+            }
+
+            this->fileNames = filterByDateModified(filterByBaseNames(inDirFInfo, outDirFInfo), lastModified);
+            this->mutex.unlock();
+        }
+    }
+    this->fileMutex.unlock();
 }
 
 CryptoDirManip::~CryptoDirManip()
@@ -82,12 +164,27 @@ CryptoDirManip::~CryptoDirManip()
     this->closeApp = true;
     //this->conc.cancel();
     //this->queueThread.cancel();
-    for (int i = 0; i < this->mapThread.length(); i++){
+    for (int i = 0; i < this->mapThread.length(); i++) {
         this->mapThread[i].cancel();
     }
     //this->conc.waitForFinished();
     //this->queueThread.waitForFinished();
     close(this->fd);
+
+    this->fileMutex.lock();
+    QSaveFile outFile(this->configPath);
+    QTextStream cfileOut(&outFile);
+    if (outFile.open(QIODevice::WriteOnly | QIODevice::Text)) {
+        cfileOut << this->encryption << "\n";
+        cfileOut << this->running << "\n";
+        cfileOut << this->watchMode << "\n";
+        cfileOut << this->inputDir << "\n";
+        cfileOut << this->outputDir << "\n";
+        cfileOut << this->algoRunner->returnKey() << "\n";
+        cfileOut << QDateTime().currentDateTime().toTime_t();
+        outFile.commit();
+    }
+    this->fileMutex.unlock();
 }
 
 void CryptoDirManip::loadInputDir(const QString &input)
@@ -162,14 +259,20 @@ void CryptoDirManip::fileToAlgo(const QString current)
         inFile.close();
         outFile.commit();
 
-        this->mutex.lock();
-        QFile outFile(this->configPath);
+        this->fileMutex.lock();
+        QSaveFile outFile(this->configPath);
         QTextStream cfileOut(&outFile);
-        if (outFile.open(QIODevice::ReadWrite | QIODevice::Text | QIODevice::Truncate)) {
+        if (outFile.open(QIODevice::WriteOnly | QIODevice::Text)) {
+            cfileOut << this->encryption << "\n";
+            cfileOut << this->running << "\n";
+            cfileOut << this->watchMode << "\n";
+            cfileOut << this->inputDir << "\n";
+            cfileOut << this->outputDir << "\n";
+            cfileOut << this->algoRunner->returnKey() << "\n";
             cfileOut << QDateTime().currentDateTime().toTime_t();
-            outFile.close();
+            outFile.commit();
         }
-        this->mutex.unlock();
+        this->fileMutex.unlock();
     }
 }
 

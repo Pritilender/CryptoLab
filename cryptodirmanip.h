@@ -50,6 +50,7 @@ private:
     QFuture<void> queueThread;
     QFuture<void> conc;
     QMutex mutex;
+    QMutex fileMutex;
     //inotify
     int fd;
     int wd;
