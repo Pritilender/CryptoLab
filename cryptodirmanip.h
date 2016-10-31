@@ -11,24 +11,6 @@
 #include <QMutex>
 #include <QDateTime>
 
-
-///TODO something with this graaa
-struct CryptoFileInfo {
-    QString baseName;
-    bool encryption;
-    QString absoluteFilePath;
-    QString suffix;
-    QString outputDir;
-    CryptoAlgorithm* algoRunner;
-    QMutex* mutex;
-    QDateTime lastModified;
-    QDateTime created;
-    QDateTime lastRead; //???
-    bool operator==(const CryptoFileInfo& rhs){
-        return this->baseName == rhs.baseName;
-    }
-} typedef CryptoFileInfo;
-
 /**
  * @brief The CryptoDirManip class
  * It expects that eveything is valid.
@@ -44,7 +26,6 @@ private:
     bool encryption = false;
     bool running = false;
     bool closeApp = false;
-    QList<CryptoFileInfo> fileQueue;
     int oldLength = 0;
     QList<QFuture<void>> mapThread;
     QFuture<void> queueThread;

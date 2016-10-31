@@ -119,49 +119,6 @@ CryptoDirManip::CryptoDirManip()
     for (int i = 0; i < 8; i++) {
         this->mapThread.append(QFuture<void>());
     }
-
-//    this->fileMutex.lock();
-//    QFile configFile(this->configPath);
-//    if (configFile.exists()) {
-//        if (configFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
-//            QTextStream cFile(&configFile);
-//            QString key;
-//            uint lastModified;
-
-//            this->encryption = (bool)cFile.readLine().toInt();
-//            this->running = (bool)cFile.readLine().toInt();
-//            this->watchMode = (bool)cFile.readLine().toInt();
-
-//            cFile >> this->inputDir;
-//            cFile >> this->outputDir;
-//            cFile >> key;
-//            this->algoRunner = new SimpleSubstitutioner(key);
-//            qDebug() << cFile.readLine();
-//            lastModified = cFile.readLine().toUInt();
-//            configFile.close();
-
-//            QString inExt = this->encryption ? "*.txt" : "*.crypto";
-//            QString outExt = this->encryption ? "*.crypto" : "*.txt";
-
-//            this->mutex.lock();
-//            QDirIterator outDir(this->outputDir, QStringList() << outExt, QDir::Files);
-//            QList<QFileInfo> outDirFInfo;
-//            QDirIterator inDir(this->inputDir, QStringList() << inExt, QDir::Files);
-//            QList<QFileInfo> inDirFInfo;
-
-//            while (outDir.hasNext()) {
-//                outDirFInfo.append(QFileInfo(outDir.next()));
-//            }
-
-//            while (inDir.hasNext()) {
-//                inDirFInfo.append(QFileInfo(inDir.next()));
-//            }
-
-//            this->fileNames = filterByDateModified(filterByBaseNames(inDirFInfo, outDirFInfo), lastModified);
-//            this->mutex.unlock();
-//        }
-//    }
-    //    this->fileMutex.unlock();
 }
 
 void CryptoDirManip::loadConfigFile()
