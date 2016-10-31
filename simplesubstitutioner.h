@@ -12,7 +12,7 @@ private:
 
 public:
     SimpleSubstitutioner(QString key);
-    QString runAlgo(QString src, bool encrypt);
+    QString runAlgo(const QString& src, bool encrypt);
     QString returnKey(){
         QString key;
         foreach(char c, this->keyMapping) {

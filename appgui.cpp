@@ -111,3 +111,33 @@ void appGui::on_cbxWatch_clicked(bool checked)
 {
     emit watchModeChanged(checked);
 }
+
+void appGui::inDirFile(const QString &inDir)
+{
+    this->ui->lneInputDir->setText(inDir);
+}
+
+void appGui::outDirFile(const QString &output)
+{
+    this->ui->lneOutputDir->setText(output);
+}
+
+void appGui::keyFile(const QString &key)
+{
+    this->ui->lneKey->setText(key);
+}
+
+void appGui::encryptionFile(const bool encry)
+{
+    this->ui->lblStatus->setText(encry ? "Enkripcija" : "Dekripcija");
+}
+
+void appGui::runningFile(const bool running)
+{
+    this->ui->lblRunning->setText(running ? "u toku..." : "kraj.");
+}
+
+void appGui::watchFile(const bool watch)
+{
+    this->ui->cbxWatch->setChecked(watch);
+}

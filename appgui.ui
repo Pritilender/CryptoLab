@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>341</width>
-    <height>233</height>
+    <width>500</width>
+    <height>281</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -194,6 +194,13 @@
         </widget>
        </item>
       </layout>
+     </item>
+     <item row="4" column="1">
+      <widget class="QLabel" name="lblRunning">
+       <property name="text">
+        <string>Program ceka...</string>
+       </property>
+      </widget>
      </item>
     </layout>
    </item>

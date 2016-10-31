@@ -11,13 +11,6 @@
 #define EVENT_SIZE (sizeof (struct inotify_event))
 #define BUF_LEN (1024*(EVENT_SIZE + 16))
 
-bool isTxtCrypt(char *fName)
-{
-    QString file(fName);
-
-    return file.contains(QRegularExpression("([.]txt|[.]crypto)$"));
-}
-
 void CryptoDirManip::inotifyThread()
 {
     while (!this->closeApp) {
@@ -33,7 +26,7 @@ void CryptoDirManip::inotifyThread()
 
             this->mutex.lock();
             while (i < length) {
-                struct inotify_event *event = (struct inotify_event*) &buffer[i];
+                struct inotify_event *event = (struct inotify_event *) &buffer[i];
                 if (event->len && !(event->mask & IN_ISDIR)) {
                     if (event->mask & IN_CREATE) {
                         // New file, just add it to the queue
@@ -115,75 +108,73 @@ CryptoDirManip::CryptoDirManip()
         this->mapThread.append(QFuture<void>());
     }
 
+//    this->fileMutex.lock();
+//    QFile configFile(this->configPath);
+//    if (configFile.exists()) {
+//        if (configFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
+//            QTextStream cFile(&configFile);
+//            QString key;
+//            uint lastModified;
+
+//            this->encryption = (bool)cFile.readLine().toInt();
+//            this->running = (bool)cFile.readLine().toInt();
+//            this->watchMode = (bool)cFile.readLine().toInt();
+
+//            cFile >> this->inputDir;
+//            cFile >> this->outputDir;
+//            cFile >> key;
+//            this->algoRunner = new SimpleSubstitutioner(key);
+//            qDebug() << cFile.readLine();
+//            lastModified = cFile.readLine().toUInt();
+//            configFile.close();
+
+//            QString inExt = this->encryption ? "*.txt" : "*.crypto";
+//            QString outExt = this->encryption ? "*.crypto" : "*.txt";
+
+//            this->mutex.lock();
+//            QDirIterator outDir(this->outputDir, QStringList() << outExt, QDir::Files);
+//            QList<QFileInfo> outDirFInfo;
+//            QDirIterator inDir(this->inputDir, QStringList() << inExt, QDir::Files);
+//            QList<QFileInfo> inDirFInfo;
+
+//            while (outDir.hasNext()) {
+//                outDirFInfo.append(QFileInfo(outDir.next()));
+//            }
+
+//            while (inDir.hasNext()) {
+//                inDirFInfo.append(QFileInfo(inDir.next()));
+//            }
+
+//            this->fileNames = filterByDateModified(filterByBaseNames(inDirFInfo, outDirFInfo), lastModified);
+//            this->mutex.unlock();
+//        }
+//    }
+    //    this->fileMutex.unlock();
+}
+
+void CryptoDirManip::loadConfigFile()
+{
     this->fileMutex.lock();
-    QFile configFile(this->configPath);
-    if (configFile.exists()) {
-        if (configFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
-            QTextStream cFile(&configFile);
-            QString key;
-            uint lastModified;
-
-            this->encryption = (bool)cFile.readLine().toInt();
-            this->running = (bool)cFile.readLine().toInt();
-            this->watchMode = (bool)cFile.readLine().toInt();
-
-            cFile >> this->inputDir;
-            cFile >> this->outputDir;
-            cFile >> key;
-            this->algoRunner = new SimpleSubstitutioner(key);
-            qDebug() << cFile.readLine();
-            lastModified = cFile.readLine().toUInt();
-            configFile.close();
-
-            QString inExt = this->encryption ? "*.txt" : "*.crypto";
-            QString outExt = this->encryption ? "*.crypto" : "*.txt";
-
-            this->mutex.lock();
-            QDirIterator outDir(this->outputDir, QStringList() << outExt, QDir::Files);
-            QList<QFileInfo> outDirFInfo;
-            QDirIterator inDir(this->inputDir, QStringList() << inExt, QDir::Files);
-            QList<QFileInfo> inDirFInfo;
-
-            while (outDir.hasNext()) {
-                outDirFInfo.append(QFileInfo(outDir.next()));
-            }
-
-            while (inDir.hasNext()) {
-                inDirFInfo.append(QFileInfo(inDir.next()));
-            }
-
-            this->fileNames = filterByDateModified(filterByBaseNames(inDirFInfo, outDirFInfo), lastModified);
-            this->mutex.unlock();
-        }
-    }
+    this->readConfig();
+    emit this->inDirFile(this->inputDir);
+    emit this->outDirFile(this->outputDir);
+    emit this->keyFile(this->algoRunner->returnKey());
+    emit this->encryptionFile(this->encryption);
+    emit this->runningFile(this->running);
+    emit this->watchFile(this->watchMode);
     this->fileMutex.unlock();
 }
 
 CryptoDirManip::~CryptoDirManip()
 {
     this->closeApp = true;
-    //this->conc.cancel();
-    //this->queueThread.cancel();
     for (int i = 0; i < this->mapThread.length(); i++) {
         this->mapThread[i].cancel();
     }
-    //this->conc.waitForFinished();
-    //this->queueThread.waitForFinished();
     close(this->fd);
 
     this->fileMutex.lock();
-    QSaveFile outFile(this->configPath);
-    QTextStream cfileOut(&outFile);
-    if (outFile.open(QIODevice::WriteOnly | QIODevice::Text)) {
-        cfileOut << this->encryption << "\n";
-        cfileOut << this->running << "\n";
-        cfileOut << this->watchMode << "\n";
-        cfileOut << this->inputDir << "\n";
-        cfileOut << this->outputDir << "\n";
-        cfileOut << this->algoRunner->returnKey() << "\n";
-        cfileOut << QDateTime().currentDateTime().toTime_t();
-        outFile.commit();
-    }
+    this->writeConfig();
     this->fileMutex.unlock();
 }
 
@@ -245,11 +236,6 @@ void CryptoDirManip::fileToAlgo(const QString current)
 
         while (!inReader.atEnd()) {
             inputTxt = inReader.readLine();
-
-            inputTxt.remove(QRegExp("[^A-Za-z]"));
-
-            inputTxt = inputTxt.toLower();
-
             //maybe not add a new line?
             fileOut << ptAlgoRunner->runAlgo(inputTxt, isEncryptionRunning) << "\n";
         }
@@ -260,19 +246,60 @@ void CryptoDirManip::fileToAlgo(const QString current)
         outFile.commit();
 
         this->fileMutex.lock();
-        QSaveFile outFile(this->configPath);
-        QTextStream cfileOut(&outFile);
-        if (outFile.open(QIODevice::WriteOnly | QIODevice::Text)) {
-            cfileOut << this->encryption << "\n";
-            cfileOut << this->running << "\n";
-            cfileOut << this->watchMode << "\n";
-            cfileOut << this->inputDir << "\n";
-            cfileOut << this->outputDir << "\n";
-            cfileOut << this->algoRunner->returnKey() << "\n";
-            cfileOut << QDateTime().currentDateTime().toTime_t();
-            outFile.commit();
-        }
+        this->writeConfig();
         this->fileMutex.unlock();
+    }
+}
+
+void CryptoDirManip::writeConfig()
+{
+    QSaveFile outFile(this->configPath);
+    QTextStream cfileOut(&outFile);
+    if (outFile.open(QIODevice::WriteOnly | QIODevice::Text)) {
+        cfileOut << this->encryption << "\n";
+        cfileOut << this->running << "\n";
+        cfileOut << this->watchMode << "\n";
+        cfileOut << this->inputDir << "\n";
+        cfileOut << this->outputDir << "\n";
+        cfileOut << QDateTime().currentDateTime().toTime_t() << "\n";
+        cfileOut << this->algoRunner->returnKey() << "\n";
+        outFile.commit();
+    }
+}
+
+void CryptoDirManip::readConfig()
+{
+    QFile inFile(this->configPath);
+    QTextStream cfileIn(&inFile);
+    if (inFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        int boolHelper;
+        uint timeStamp;
+        QString key;
+
+        cfileIn >> boolHelper;
+        this->encryption = boolHelper;
+        qDebug() << boolHelper;
+
+        cfileIn >> boolHelper;
+        this->running = boolHelper;
+        qDebug() << boolHelper;
+
+        cfileIn >> boolHelper;
+        this->watchMode = boolHelper;
+        qDebug() << boolHelper;
+
+        cfileIn >> this->inputDir;
+        qDebug() << this->inputDir;
+        cfileIn >> this->outputDir;
+        qDebug() << this->outputDir;
+
+        cfileIn >> timeStamp;
+        qDebug() << timeStamp;
+
+        cfileIn >> key;
+        qDebug() << key;
+        this->algoRunner = new SimpleSubstitutioner(key);
+        inFile.close();
     }
 }
 

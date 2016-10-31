@@ -67,9 +67,12 @@ private:
      */
     void queueManip();
     void fileToAlgo(const QString current);
+    void writeConfig();
+    void readConfig();
 
 public:
     CryptoDirManip();
+    void loadConfigFile();
     virtual ~CryptoDirManip();
 
 public slots:
@@ -99,6 +102,13 @@ public slots:
      */
     void run(const bool encryption);
     //stop();
+signals:
+    void inDirFile(const QString &input);
+    void outDirFile(const QString &output);
+    void keyFile(const QString &key);
+    void encryptionFile(const bool encry);
+    void runningFile(const bool running);
+    void watchFile(const bool watch);
 };
 
 #endif // CRYPTODIRMANIP_H

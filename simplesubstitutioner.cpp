@@ -9,13 +9,16 @@ SimpleSubstitutioner::SimpleSubstitutioner(QString key)
     }
 }
 
-QString SimpleSubstitutioner::runAlgo(const QString src, bool encrypt)
+QString SimpleSubstitutioner::runAlgo(const QString& src, bool encrypt)
 {
+    QString in(src);
     QString result;
 
+    // Clean up the string and lower case it
+    in = in.remove(QRegExp("[^A-Za-z]")).toLower();
 
-    for (int i = 0; i < src.length(); i++) {
-        const char inLetter = src.at(i).toLatin1();
+    for (int i = 0; i < in.length(); i++) {
+        const char inLetter = in.at(i).toLatin1();
         const char outLetter = encrypt ? this->keyMapping[inLetter] : this->keyMapping.key(inLetter);
 
         result.append(outLetter);

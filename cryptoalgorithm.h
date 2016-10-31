@@ -12,7 +12,7 @@ public:
      * @param encrypt Choose encryption or decryption mode
      * @return Encrypted or decrypted string
      */
-    virtual QString runAlgo(const QString src, bool encrypt) = 0;
+    virtual QString runAlgo(const QString& src, bool encrypt) = 0;
     virtual QString returnKey() = 0;
 };
 
