@@ -33,19 +33,19 @@ void CryptoDirManip::inotifyThread()
 
             this->mutex.lock();
             while (i < length) {
-                struct inotify_event *event = ( struct inotify_event * ) &buffer[ i ];
-                if ( event->len && !(event->mask & IN_ISDIR) && isTxtCrypt(event->name)) {
-                    if ( event->mask & IN_CREATE ) {
+                struct inotify_event *event = (struct inotify_event*) &buffer[i];
+                if (event->len && !(event->mask & IN_ISDIR)) {
+                    if (event->mask & IN_CREATE) {
                         // New file, just add it to the queue
                         qDebug() << "The file" << event->name << "was created.";
                         this->fileNames.append(QString(event->name));
-                    } else if ( event->mask & IN_MODIFY ) {
+                    } else if (event->mask & IN_MODIFY) {
                         // File is modified and algo is running, so we need to readd it
                         qDebug() << "The file" << event->name << "was modified.";
                         if (!this->fileNames.contains(QString(event->name))) {
                             this->fileNames.append(QString(event->name));
                         }
-                    } else if ( event->mask & IN_DELETE && !this->running) {
+                    } else if (event->mask & IN_DELETE && !this->running) {
                         // If algo is not running and we need to remove the file from queue
                         qDebug() << "The file" << event->name << "was deleted.";
                         this->fileNames.removeOne(QString(event->name));
