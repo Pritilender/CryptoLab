@@ -138,9 +138,7 @@ void CryptoDirManip::loadConfigFile()
 CryptoDirManip::~CryptoDirManip()
 {
     this->closeApp = true;
-    for (int i = 0; i < this->mapThread.length(); i++) {
-        this->mapThread[i].cancel();
-    }
+
     close(this->fd);
 
     this->fileMutex.lock();
@@ -218,6 +216,7 @@ void CryptoDirManip::fileToAlgo(const QString current)
         this->fileMutex.lock();
         this->writeConfig();
         this->fileMutex.unlock();
+        this->runningThreads--;
     }
 }
 
@@ -248,26 +247,19 @@ void CryptoDirManip::readConfig()
 
         cfileIn >> boolHelper;
         this->encryption = boolHelper;
-        qDebug() << boolHelper;
 
         cfileIn >> boolHelper;
         this->running = boolHelper;
-        qDebug() << boolHelper;
 
         cfileIn >> boolHelper;
         this->watchMode = boolHelper;
-        qDebug() << boolHelper;
 
         cfileIn >> this->inputDir;
-        qDebug() << this->inputDir;
         cfileIn >> this->outputDir;
-        qDebug() << this->outputDir;
 
         cfileIn >> timeStamp;
-        qDebug() << timeStamp;
 
         cfileIn >> key;
-        qDebug() << key;
         this->algoRunner = new SimpleSubstitutioner(key);
         inFile.close();
     }
@@ -280,9 +272,10 @@ void CryptoDirManip::run(const bool encryption)
     QMutableStringListIterator it(this->fileNames);
 
     this->mutex.lock();
-    qDebug() << "Neko zvao run?";
+
     this->running = true;
     this->encryption = encryption;
+
     while (it.hasNext()) {
         QString next = it.next();
 
@@ -290,7 +283,7 @@ void CryptoDirManip::run(const bool encryption)
             it.remove();
         }
     }
-    qDebug() << "Valjda ce radi";
+
     this->mutex.unlock();
 }
 
@@ -299,23 +292,16 @@ void CryptoDirManip::queueManip()
     while (!this->closeApp) {
         if (this->running) {
             this->mutex.lock();
-            if (this->fileNames.length() != 0) {
+            if (this->fileNames.length() != 0 && this->runningThreads < 16) {
+                this->runningThreads++;
                 qDebug() << "Enkriptuj!";
                 inputDirPath = this->inputDir;
                 outputDirPath = this->outputDir;
                 isEncryptionRunning = this->encryption;
                 ptAlgoRunner = this->algoRunner;
-                foreach (QString fn, this->fileNames) {
-                    qDebug() << fn;
-                }
 
-                for (int i = 0; i < this->fileNames.length() && i < 8; i++) {
-                    if (!this->mapThread[i].isRunning()) {
-                        QString fName = this->fileNames.takeFirst();
-                        this->mapThread[i] = QtConcurrent::run(this, &CryptoDirManip::fileToAlgo, fName);
-                    }
-                }
-                qDebug() << "Ce zavrsi!";
+                QString fName = this->fileNames.takeFirst();
+                QtConcurrent::run(this, &CryptoDirManip::fileToAlgo, fName);
             }
             if (!this->watchMode && this->fileNames.length() == 0) {
                 this->running = false;
