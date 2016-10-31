@@ -4,6 +4,7 @@
 #include <QTextStream>
 #include <sys/inotify.h>
 #include <sys/types.h>
+#include <poll.h>
 #include <unistd.h>
 
 #include <QDebug>
@@ -13,41 +14,52 @@
 
 void CryptoDirManip::inotifyThread()
 {
+    struct pollfd pfd = {this->fd, POLLIN, 0};
+
     while (!this->closeApp) {
         while (this->watchMode) {
             char buffer[BUF_LEN];
             int i = 0;
-            int length = read(this->fd, buffer, BUF_LEN);
+            int ret = poll(&pfd, 1, 500);
 
-            if (length < 0) {
-                qDebug() << "read";
+            if (ret < 0) {
+                qDebug() << "Poll fail";
                 return;
-            }
+            } else if (ret == 0) {
+                continue; // no new events
+            } else {
+                int length = read(this->fd, buffer, BUF_LEN);
 
-            this->mutex.lock();
-            while (i < length) {
-                struct inotify_event *event = (struct inotify_event *) &buffer[i];
-                if (event->len && !(event->mask & IN_ISDIR)) {
-                    if (event->mask & IN_CREATE) {
-                        // New file, just add it to the queue
-                        qDebug() << "The file" << event->name << "was created.";
-                        this->fileNames.append(QString(event->name));
-                    } else if (event->mask & IN_MODIFY) {
-                        // File is modified and algo is running, so we need to readd it
-                        qDebug() << "The file" << event->name << "was modified.";
-                        if (!this->fileNames.contains(QString(event->name))) {
-                            this->fileNames.append(QString(event->name));
-                        }
-                    } else if (event->mask & IN_DELETE && !this->running) {
-                        // If algo is not running and we need to remove the file from queue
-                        qDebug() << "The file" << event->name << "was deleted.";
-                        this->fileNames.removeOne(QString(event->name));
-                    }
+                if (length < 0) {
+                    qDebug() << "Read fail";
+                    return;
                 }
-                i += EVENT_SIZE + event->len;
 
+                this->mutex.lock();
+                while (i < length) {
+                    struct inotify_event *event = (struct inotify_event *) &buffer[i];
+                    if (event->len && !(event->mask & IN_ISDIR)) {
+                        if (event->mask & IN_CREATE) {
+                            // New file, just add it to the queue
+                            qDebug() << "The file" << event->name << "was created.";
+                            this->fileNames.append(QString(event->name));
+                        } else if (event->mask & IN_MODIFY) {
+                            // File is modified and algo is running, so we need to readd it
+                            qDebug() << "The file" << event->name << "was modified.";
+                            if (!this->fileNames.contains(QString(event->name))) {
+                                this->fileNames.append(QString(event->name));
+                            }
+                        } else if (event->mask & IN_DELETE && !this->running) {
+                            // If algo is not running and we need to remove the file from queue
+                            qDebug() << "The file" << event->name << "was deleted.";
+                            this->fileNames.removeOne(QString(event->name));
+                        }
+                    }
+                    i += EVENT_SIZE + event->len;
+
+                }
+                this->mutex.unlock();
             }
-            this->mutex.unlock();
         }
     }
 }
@@ -162,6 +174,7 @@ void CryptoDirManip::loadConfigFile()
     emit this->encryptionFile(this->encryption);
     emit this->runningFile(this->running);
     emit this->watchFile(this->watchMode);
+    this->setWatchMode(this->watchMode); ///TODO move this to a function
     this->fileMutex.unlock();
 }
 

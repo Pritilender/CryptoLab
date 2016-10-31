@@ -12,6 +12,9 @@ class appGui : public QWidget
 {
     Q_OBJECT
 
+private:
+    bool canRun();
+
 public:
     explicit appGui(QWidget *parent = 0);
     ~appGui();

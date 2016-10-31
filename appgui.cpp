@@ -11,6 +11,13 @@
 
 #include "QDebug"
 
+bool appGui::canRun()
+{
+    return !this->ui->lneKey->text().isEmpty() &&
+            !this->ui->lneInputDir->text().isEmpty() &&
+            !this->ui->lneOutputDir->text().isEmpty();
+}
+
 appGui::appGui(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::appGui)
@@ -62,9 +69,9 @@ void appGui::on_lneKey_textChanged(const QString &arg1)
         QMessageBox msg;
         msg.setText("Dati ključ nije validan!");
         msg.exec();
-        ui->btnEncrypt->setDisabled(true);
+        ui->btnEncrypt->setEnabled(this->canRun());
     } else {
-        ui->btnEncrypt->setEnabled(true);
+        ui->btnEncrypt->setEnabled(false);
     }
 }
 
@@ -74,6 +81,8 @@ void appGui::on_btnInputDir_clicked()
     const QString inputDir = this->loadDirFile(true);
 
     ui->lneInputDir->setText(inputDir);
+
+    ui->btnEncrypt->setEnabled(this->canRun());
 
     emit inDirLoad(inputDir);
 }
@@ -85,6 +94,8 @@ void appGui::on_btnOutputDir_clicked()
     const QString outputDir = this->loadDirFile(true);
 
     ui->lneOutputDir->setText(outputDir);
+
+    ui->btnEncrypt->setEnabled(this->canRun());
 
     emit outDirLoad(outputDir);
 }
@@ -115,16 +126,22 @@ void appGui::on_cbxWatch_clicked(bool checked)
 void appGui::inDirFile(const QString &inDir)
 {
     this->ui->lneInputDir->setText(inDir);
+
+    ui->btnEncrypt->setEnabled(this->canRun());
 }
 
 void appGui::outDirFile(const QString &output)
 {
     this->ui->lneOutputDir->setText(output);
+
+    ui->btnEncrypt->setEnabled(this->canRun());
 }
 
 void appGui::keyFile(const QString &key)
 {
     this->ui->lneKey->setText(key);
+
+    ui->btnEncrypt->setEnabled(this->canRun());
 }
 
 void appGui::encryptionFile(const bool encry)
