@@ -11,8 +11,6 @@
 
 #include "QDebug"
 
-#include <QGraphicsTextItem>
-
 bool appGui::canRun()
 {
     return !this->ui->lneKey->text().isEmpty() &&
@@ -26,16 +24,47 @@ appGui::appGui(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    this->scene.setSceneRect(0, 0, 290, 280);
-    this->drawRegister(X, "10101000000001111");
+    this->scene.setSceneRect(0, 0, 390, 270);
+
+    for (int reg = 0; reg <= DEST; reg++) {
+        QList<QGraphicsTextItem*> list;
+        int blocks;
+        switch (reg) {
+        case SRC:
+        case DEST:
+            blocks = 25;
+            break;
+        case X:
+            blocks = 19;
+            break;
+        case Y:
+            blocks = 22;
+            break;
+        case Z:
+            blocks = 23;
+            break;
+        }
+        for (int i = 0; i < blocks; i++) {
+            list.append(this->scene.addText("0"));
+            list[i]->setVisible(false);
+        }
+        this->registerMatrix.append(list);
+    }
+
+    this->drawRegister(SRC, "101010100111100001010101", "src");
+    this->drawRegister(X, "1011110000101010110", "x");
+
+    this->drawRegister(DEST, "1011110000110111010110", "dest");
 }
 
-void appGui::drawRegister(regs reg, const QString &bits)
+void appGui::drawRegister(regs reg, const QString &bits, const QString &regName)
 {
+    this->scene.addText(regName)->setPos(0, this->calulateYFont(reg));
     for (int i = 0; i < bits.length(); i++) {
-        QGraphicsTextItem *bit = this->scene.addText(bits.at(i));
-        bit->setPos(i*14, 0);
-        this->scene.addRect(i*14, 3, 14, 14);
+        this->registerMatrix[reg][i]->setPlainText(bits.at(i));
+        this->registerMatrix[reg][i]->setPos(this->calculateX(i), this->calulateYFont(reg));
+        this->registerMatrix[reg][i]->setVisible(true);
+        this->scene.addRect(this->calculateX(i), this->calculateYReg(reg), REG_BLOCK, REG_BLOCK);
     }
 
     this->ui->graphicsView->setScene(&this->scene);
@@ -61,7 +90,7 @@ void appGui::on_btnKeyLoad_clicked()
 
     if (keyFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
         QTextStream keyReader(&keyFile);
-        QString key = keyReader.readAll();
+        QString key = keyReader.readAll().trimmed();
 
         ui->lneKey->setText("");
         ui->lneKey->setText(key.trimmed());
@@ -80,23 +109,26 @@ void appGui::on_btnKeyLoad_clicked()
 void appGui::on_lneKey_textChanged(const QString &arg1)
 {
     ///TODO
-    KeyValidator kvalid;
-    QString key = arg1;
+//    KeyValidator kvalid;
+//    QString key = arg1;
 
-    if (!kvalid.validate(key)) {
-        QMessageBox msg;
-        msg.setText("Dati ključ nije validan!");
-        msg.exec();
-        ui->btnEncrypt->setEnabled(this->canRun());
-        ui->btnDecrypt->setEnabled(this->canRun());
-    } else {
-        ui->btnEncrypt->setEnabled(false);
-        ui->btnDecrypt->setEnabled(false);
-    }
+//    if (!kvalid.validate(key)) {
+//        QMessageBox msg;
+//        msg.setText("Dati ključ nije validan!");
+//        msg.exec();
+//        ui->btnEncrypt->setEnabled(this->canRun());
+//        ui->btnDecrypt->setEnabled(this->canRun());
+//    } else {
+//        ui->btnEncrypt->setEnabled(false);
+//        ui->btnDecrypt->setEnabled(false);
+//    }
 }
 
 void appGui::on_btnInputDir_clicked()
 {
+
+    this->drawRegister(Y, "1011110000101010101010", "y");
+    this->drawRegister(Z, "10111100001010101100110", "z");
     ///TODO check if the directory exists
     const QString inputDir = this->loadDirFile(true);
 

@@ -9,25 +9,25 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>662</width>
+    <width>762</width>
     <height>318</height>
    </rect>
   </property>
   <property name="sizePolicy">
-   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+   <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
     <horstretch>0</horstretch>
     <verstretch>0</verstretch>
    </sizepolicy>
   </property>
   <property name="minimumSize">
    <size>
-    <width>662</width>
+    <width>762</width>
     <height>318</height>
    </size>
   </property>
   <property name="maximumSize">
    <size>
-    <width>662</width>
+    <width>762</width>
     <height>318</height>
    </size>
   </property>
@@ -222,7 +222,21 @@
     </layout>
    </item>
    <item row="0" column="1">
-    <widget class="QGraphicsView" name="graphicsView"/>
+    <layout class="QVBoxLayout" name="verticalLayout_7">
+     <item>
+      <widget class="QGraphicsView" name="graphicsView"/>
+     </item>
+     <item>
+      <widget class="QSlider" name="sldSpeed">
+       <property name="maximum">
+        <number>10</number>
+       </property>
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+      </widget>
+     </item>
+    </layout>
    </item>
   </layout>
  </widget>

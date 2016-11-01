@@ -4,13 +4,15 @@
 #include <QGraphicsView>
 #include <QWidget>
 #include <cryptodirmanip.h>
+#include <QGraphicsTextItem>
 
-#define REG_AX 20
-#define REG_XY 0
-#define REG_YY 40
-#define REG_ZY 40
+#define REG_BLOCK 14
+#define REG_SPACE 20
+#define FONT_REGULATOR 3
+#define REG_START 20
+#define REG_LEFT 30
 
-enum regs {X, Y, Z};
+enum regs {SRC, X, Y, Z, DEST};
 
 namespace Ui {
 class appGui;
@@ -23,7 +25,22 @@ class appGui : public QWidget
 private:
     bool canRun();
     QGraphicsScene scene;
-    void drawRegister(/*QGraphicsScene& scene,*/ regs reg, const QString& bits);
+    void drawRegister(regs reg, const QString &bits, const QString &regName);
+    QList<QList<QGraphicsTextItem*>> registerMatrix;
+    inline double calculateX(int index)
+    {
+        return index * REG_BLOCK + REG_LEFT;
+    }
+
+    inline double calulateYFont(regs reg)
+    {
+        return (reg * (REG_BLOCK + REG_SPACE) - FONT_REGULATOR) + REG_START;
+    }
+
+    inline double calculateYReg(regs reg)
+    {
+        return reg * (REG_BLOCK + REG_SPACE) + REG_START;
+    }
 
 public:
     explicit appGui(QWidget *parent = 0);
