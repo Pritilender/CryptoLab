@@ -28,11 +28,7 @@
           </widget>
          </item>
          <item>
-          <widget class="QLineEdit" name="lneKey">
-           <property name="maxLength">
-            <number>30</number>
-           </property>
-          </widget>
+          <widget class="QLineEdit" name="lneKey"/>
          </item>
         </layout>
        </item>

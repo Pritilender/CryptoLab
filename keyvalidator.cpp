@@ -10,16 +10,17 @@ KeyValidator::KeyValidator()
  * */
 bool KeyValidator::validate(QString key)
 {
-    bool valid = true;
+//    bool valid = true;
 
-    if (key.length() != 26) {
-        valid = false;
-    }
+//    if (key.length() != 26) {
+//        valid = false;
+//    }
 
-    for (int i = 0; i < key.length() && valid; i++) {
-        if (i != key.lastIndexOf(key.at(i))) {
-            valid = false;
-        }
-    }
-    return valid;
+//    for (int i = 0; i < key.length() && valid; i++) {
+//        if (i != key.lastIndexOf(key.at(i))) {
+//            valid = false;
+//        }
+//    }
+//    return valid;
+    return key.length() == 64;
 }

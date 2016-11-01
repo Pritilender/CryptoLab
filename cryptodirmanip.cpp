@@ -1,3 +1,4 @@
+#include "a51.h"
 #include "cryptodirmanip.h"
 #include <simplesubstitutioner.h>
 #include <QDirIterator>
@@ -124,14 +125,17 @@ CryptoDirManip::CryptoDirManip()
 void CryptoDirManip::loadConfigFile()
 {
     this->fileMutex.lock();
-    this->readConfig();
-    emit this->inDirFile(this->inputDir);
-    emit this->outDirFile(this->outputDir);
-    emit this->keyFile(this->algoRunner->returnKey());
-    emit this->encryptionFile(this->encryption);
-    emit this->runningFile(this->running);
-    emit this->watchFile(this->watchMode);
-    this->setWatchMode(this->watchMode); ///TODO move this to a function
+    QFile cFile(this->configPath);
+    if (cFile.exists()) {
+        this->readConfig();
+        emit this->inDirFile(this->inputDir);
+        emit this->outDirFile(this->outputDir);
+        emit this->keyFile(this->algoRunner->returnKey());
+        emit this->encryptionFile(this->encryption);
+        emit this->runningFile(this->running);
+        emit this->watchFile(this->watchMode);
+        this->setWatchMode(this->watchMode); ///TODO move this to a function
+    }
     this->fileMutex.unlock();
 }
 
@@ -164,7 +168,8 @@ void CryptoDirManip::loadOutputDir(const QString &output)
 
 void CryptoDirManip::loadKey(const QString &key)
 {
-    this->algoRunner = new SimpleSubstitutioner(key);
+    //this->algoRunner = new SimpleSubstitutioner(key);
+    this->algoRunner = new A51(key);
 }
 
 void CryptoDirManip::setWatchMode(const bool mode)
@@ -260,7 +265,8 @@ void CryptoDirManip::readConfig()
         cfileIn >> timeStamp;
 
         cfileIn >> key;
-        this->algoRunner = new SimpleSubstitutioner(key);
+        //this->algoRunner = new SimpleSubstitutioner(key);
+        this->algoRunner = new A51(key);
         inFile.close();
     }
 }

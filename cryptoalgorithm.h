@@ -1,6 +1,9 @@
 #ifndef CRYPTOALGORITHM_H
 #define CRYPTOALGORITHM_H
 
+#include <QString>
+
+
 
 class CryptoAlgorithm
 {

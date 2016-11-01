@@ -1,5 +1,6 @@
 #include "appgui.h"
 #include <QApplication>
+#include "a51.h"
 #include "cryptodirmanip.h"
 
 int main(int argc, char *argv[])

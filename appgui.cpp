@@ -70,8 +70,10 @@ void appGui::on_lneKey_textChanged(const QString &arg1)
         msg.setText("Dati ključ nije validan!");
         msg.exec();
         ui->btnEncrypt->setEnabled(this->canRun());
+        ui->btnDecrypt->setEnabled(this->canRun());
     } else {
         ui->btnEncrypt->setEnabled(false);
+        ui->btnDecrypt->setEnabled(false);
     }
 }
 
@@ -83,6 +85,7 @@ void appGui::on_btnInputDir_clicked()
     ui->lneInputDir->setText(inputDir);
 
     ui->btnEncrypt->setEnabled(this->canRun());
+    ui->btnDecrypt->setEnabled(this->canRun());
 
     emit inDirLoad(inputDir);
 }
@@ -96,6 +99,7 @@ void appGui::on_btnOutputDir_clicked()
     ui->lneOutputDir->setText(outputDir);
 
     ui->btnEncrypt->setEnabled(this->canRun());
+    ui->btnDecrypt->setEnabled(this->canRun());
 
     emit outDirLoad(outputDir);
 }
@@ -128,6 +132,7 @@ void appGui::inDirFile(const QString &inDir)
     this->ui->lneInputDir->setText(inDir);
 
     ui->btnEncrypt->setEnabled(this->canRun());
+    ui->btnDecrypt->setEnabled(this->canRun());
 }
 
 void appGui::outDirFile(const QString &output)
@@ -135,6 +140,7 @@ void appGui::outDirFile(const QString &output)
     this->ui->lneOutputDir->setText(output);
 
     ui->btnEncrypt->setEnabled(this->canRun());
+    ui->btnDecrypt->setEnabled(this->canRun());
 }
 
 void appGui::keyFile(const QString &key)
@@ -142,6 +148,7 @@ void appGui::keyFile(const QString &key)
     this->ui->lneKey->setText(key);
 
     ui->btnEncrypt->setEnabled(this->canRun());
+    ui->btnDecrypt->setEnabled(this->canRun());
 }
 
 void appGui::encryptionFile(const bool encry)
