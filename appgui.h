@@ -1,8 +1,16 @@
 #ifndef APPGUI_H
 #define APPGUI_H
 
+#include <QGraphicsView>
 #include <QWidget>
 #include <cryptodirmanip.h>
+
+#define REG_AX 20
+#define REG_XY 0
+#define REG_YY 40
+#define REG_ZY 40
+
+enum regs {X, Y, Z};
 
 namespace Ui {
 class appGui;
@@ -14,6 +22,8 @@ class appGui : public QWidget
 
 private:
     bool canRun();
+    QGraphicsScene scene;
+    void drawRegister(/*QGraphicsScene& scene,*/ regs reg, const QString& bits);
 
 public:
     explicit appGui(QWidget *parent = 0);

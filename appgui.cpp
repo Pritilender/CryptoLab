@@ -11,11 +11,13 @@
 
 #include "QDebug"
 
+#include <QGraphicsTextItem>
+
 bool appGui::canRun()
 {
     return !this->ui->lneKey->text().isEmpty() &&
-            !this->ui->lneInputDir->text().isEmpty() &&
-            !this->ui->lneOutputDir->text().isEmpty();
+           !this->ui->lneInputDir->text().isEmpty() &&
+           !this->ui->lneOutputDir->text().isEmpty();
 }
 
 appGui::appGui(QWidget *parent) :
@@ -23,7 +25,23 @@ appGui::appGui(QWidget *parent) :
     ui(new Ui::appGui)
 {
     ui->setupUi(this);
+
+    this->scene.setSceneRect(0, 0, 290, 280);
+    this->drawRegister(X, "10101000000001111");
 }
+
+void appGui::drawRegister(regs reg, const QString &bits)
+{
+    for (int i = 0; i < bits.length(); i++) {
+        QGraphicsTextItem *bit = this->scene.addText(bits.at(i));
+        bit->setPos(i*14, 0);
+        this->scene.addRect(i*14, 3, 14, 14);
+    }
+
+    this->ui->graphicsView->setScene(&this->scene);
+    this->ui->graphicsView->show();
+}
+
 
 appGui::~appGui()
 {
