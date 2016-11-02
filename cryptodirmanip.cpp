@@ -196,8 +196,6 @@ void CryptoDirManip::setWatchMode(const bool mode)
     }
 }
 
-QString inputDirPath;
-QString outputDirPath;
 bool isEncryptionRunning;
 
 void CryptoDirManip::fileToAlgo(const QString current)
@@ -207,8 +205,8 @@ void CryptoDirManip::fileToAlgo(const QString current)
     QString base = current;
     const QString outExtension = isEncryptionRunning ? ".crypto" : ".txt";
     const QString inExtension = isEncryptionRunning ? ".txt" : ".crypto";
-    QFile inFile(inputDirPath + "/" + current);
-    QSaveFile outFile(outputDirPath + "/" + base.remove(inExtension) + outExtension);
+    QFile inFile(this->inputDir + "/" + current);
+    QSaveFile outFile(this->outputDir + "/" + base.remove(inExtension) + outExtension);
 
     A51 algoRunner(this->key);
 
@@ -231,9 +229,18 @@ void CryptoDirManip::fileToAlgo(const QString current)
         QString inputTxt;
 
         while (!inReader.atEnd()) {
-            inputTxt = inReader.readLine();
-            //maybe not add a new line?
-            fileOut << algoRunner.runAlgo(inputTxt, isEncryptionRunning) << "\n";
+            if (this->simulation && this->nextStep) {
+                QChar inputChar = inReader.read(1).at(0);
+                emit this->changeSrc(' ' + inputChar);
+                QChar outputChar = algoRunner.stepByStep(inputChar).at(0);
+                emit this->changeDst(' ' + outputChar);
+                fileOut << outputChar;
+                this->nextStep = false;
+            } else if (!this->simulation) {
+                inputTxt = inReader.readLine();
+                //maybe not add a new line?
+                fileOut << algoRunner.runAlgo(inputTxt, isEncryptionRunning) << "\n";
+            }
         }
 
         qDebug() << "kraj za " << current;
@@ -246,6 +253,11 @@ void CryptoDirManip::fileToAlgo(const QString current)
         this->fileMutex.unlock();
         this->runningThreads--;
     }
+}
+
+void CryptoDirManip::fTAStepByStep(A51 &alg, const QString src)
+{
+
 }
 
 void CryptoDirManip::writeConfig()
@@ -320,12 +332,12 @@ void CryptoDirManip::queueManip()
         if (this->running) {
             this->mutex.lock();
             if (this->simulation) {
-                while (this->runingThread != 0) {};
+                while (this->runningThreads != 0) {};
+                this->runningThreads++;
+                this->fileToAlgo(this->fileNames.takeFirst());
             }
             if (this->fileNames.length() != 0 && this->runningThreads < 16) {
                 this->runningThreads++;
-                inputDirPath = this->inputDir;
-                outputDirPath = this->outputDir;
                 isEncryptionRunning = this->encryption;
 
                 QString fName = this->fileNames.takeFirst();

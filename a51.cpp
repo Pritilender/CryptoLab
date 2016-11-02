@@ -11,6 +11,8 @@ A51::A51(const QString &key)
     for (int i = 0; i < key.length(); i++) {
         this->key.setBit(i, key.at(i).toLatin1() == '0' ? false : true);
     }
+
+    this->resetRegisters();
 }
 
 QString A51::runAlgo(const QString &src, bool encrypt)
@@ -123,7 +125,6 @@ void A51::resetRegisters()
 QString A51::bitArrayToString(const QBitArray &bArr)
 {
     QString res;
-    //qDebug() << bArr.size();
     for (int i = 0; i < bArr.size(); i++) {
         res.append(bArr.at(i) ? "1" : "0");
     }

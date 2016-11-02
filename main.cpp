@@ -15,6 +15,7 @@ int main(int argc, char *argv[])
     QObject::connect(&w, SIGNAL(watchModeChanged(bool)), &dirManip, SLOT(setWatchMode(bool)));
     QObject::connect(&w, SIGNAL(startAlgo(bool)), &dirManip, SLOT(run(bool)));
     QObject::connect(&w, SIGNAL(simulationChanged(bool)), &dirManip, SLOT(simulationMode(bool)));
+    QObject::connect(&w, SIGNAL(nextStep()), &dirManip, SLOT(stepNext()));
 
     QObject::connect(&dirManip, SIGNAL(changeRegX(QString)), &w, SLOT(drawRegisterX(QString)));
     QObject::connect(&dirManip, SIGNAL(changeRegY(QString)), &w, SLOT(drawRegisterY(QString)));
@@ -25,6 +26,8 @@ int main(int argc, char *argv[])
     QObject::connect(&dirManip, SIGNAL(encryptionFile(const bool)), &w, SLOT(encryptionFile(bool)));
     QObject::connect(&dirManip, SIGNAL(runningFile(const bool)), &w, SLOT(runningFile(bool)));
     QObject::connect(&dirManip, SIGNAL(watchFile(const bool)), &w, SLOT(watchFile(bool)));
+    QObject::connect(&dirManip, SIGNAL(changeDst(QString)), &w, SLOT(drawDst(QString)));
+    QObject::connect(&dirManip, SIGNAL(changeSrc(QString)), &w, SLOT(drawSrc(QString)));
 
     dirManip.loadConfigFile();
     w.show();

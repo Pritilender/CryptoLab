@@ -1,6 +1,8 @@
 #ifndef CRYPTODIRMANIP_H
 #define CRYPTODIRMANIP_H
 
+#include "a51.h"
+
 #include <QString>
 #include <cryptoalgorithm.h>
 #include <QList>
@@ -22,11 +24,13 @@ private:
     QString inputDir;
     QString outputDir;
     QString key;
+    QString input;
     bool watchMode = false;
     bool encryption = false;
     bool running = false;
     bool closeApp = false;
     bool simulation = false;
+    bool nextStep = false;
     int oldLength = 0;
     QList<QFuture<void>> mapThread;
     QFuture<void> queueThread;
@@ -50,6 +54,7 @@ private:
      */
     void queueManip();
     void fileToAlgo(const QString current);
+    void fTAStepByStep(A51 &alg, const QString src);
     void writeConfig();
     void readConfig();
 
@@ -85,10 +90,31 @@ public slots:
      */
     void run(const bool encryption);
 
-    void passXStepped(const QString& xreg) { emit this->changeRegX(xreg); }
-    void passYStepped(const QString& yreg) { emit this->changeRegY(yreg); }
-    void passZStepped(const QString& zreg) { emit this->changeRegZ(zreg); }
-    void simulationMode(const bool sim) { this->simulation = sim; }
+    void passXStepped(const QString &xreg)
+    {
+        emit this->changeRegX(xreg);
+    }
+    void passYStepped(const QString &yreg)
+    {
+        emit this->changeRegY(yreg);
+    }
+    void passZStepped(const QString &zreg)
+    {
+        emit this->changeRegZ(zreg);
+    }
+    void simulationMode(const bool sim)
+    {
+        this->simulation = sim;
+
+        if (sim) {
+            this->loadKey(this->key);
+        }
+    }
+    void stepNext(void)
+    {
+        this->nextStep = true;
+    }
+
 signals:
     void inDirFile(const QString &input);
     void outDirFile(const QString &output);
@@ -96,9 +122,11 @@ signals:
     void encryptionFile(const bool encry);
     void runningFile(const bool running);
     void watchFile(const bool watch);
-    void changeRegX(const QString& regX);
-    void changeRegY(const QString& regY);
-    void changeRegZ(const QString& regZ);
+    void changeRegX(const QString &regX);
+    void changeRegY(const QString &regY);
+    void changeRegZ(const QString &regZ);
+    void changeSrc(const QString &src);
+    void changeDst(const QString &dst);
 };
 
 #endif // CRYPTODIRMANIP_H

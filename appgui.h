@@ -78,6 +78,7 @@ signals:
     void watchModeChanged(const bool);
     void startAlgo(const bool);
     void simulationChanged(const bool);
+    void nextStep(void);
 
 private:
     Ui::appGui *ui;

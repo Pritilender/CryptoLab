@@ -221,7 +221,7 @@ void appGui::watchFile(const bool watch)
 
 void appGui::on_btnNext_clicked()
 {
-
+    emit this->nextStep();
 }
 
 void appGui::on_cbxSimulation_clicked(bool checked)
