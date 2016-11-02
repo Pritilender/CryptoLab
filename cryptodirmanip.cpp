@@ -105,8 +105,6 @@ QList<QString> filterByDateModified(QList<QFileInfo> inDir, uint lastModified)
 CryptoDirManip::CryptoDirManip()
     : QObject()
 {
-    this->algoRunner = nullptr;
-
     this->fd = inotify_init();
 
     if (this->fd < 0) {
@@ -130,7 +128,7 @@ void CryptoDirManip::loadConfigFile()
         this->readConfig();
         emit this->inDirFile(this->inputDir);
         emit this->outDirFile(this->outputDir);
-        emit this->keyFile(this->algoRunner->returnKey());
+        emit this->keyFile(this->key);
         emit this->encryptionFile(this->encryption);
         emit this->runningFile(this->running);
         emit this->watchFile(this->watchMode);
@@ -169,7 +167,21 @@ void CryptoDirManip::loadOutputDir(const QString &output)
 void CryptoDirManip::loadKey(const QString &key)
 {
     //this->algoRunner = new SimpleSubstitutioner(key);
-    this->algoRunner = new A51(key);
+    QString x, y, z;
+    for (int i = 0; i < 64; i++) {
+        if (i < 19) {
+            x.append(key.at(i));
+        } else if (i < 19 + 22) {
+            y.append(key.at(i));
+        } else {
+            z.append(key.at(i));
+        }
+    }
+    emit this->changeRegX(x);
+    emit this->changeRegY(y);
+    emit this->changeRegZ(z);
+
+    this->key = key;
 }
 
 void CryptoDirManip::setWatchMode(const bool mode)
@@ -187,7 +199,6 @@ void CryptoDirManip::setWatchMode(const bool mode)
 QString inputDirPath;
 QString outputDirPath;
 bool isEncryptionRunning;
-CryptoAlgorithm *ptAlgoRunner;
 
 void CryptoDirManip::fileToAlgo(const QString current)
 {
@@ -198,6 +209,18 @@ void CryptoDirManip::fileToAlgo(const QString current)
     const QString inExtension = isEncryptionRunning ? ".txt" : ".crypto";
     QFile inFile(inputDirPath + "/" + current);
     QSaveFile outFile(outputDirPath + "/" + base.remove(inExtension) + outExtension);
+
+    A51 algoRunner(this->key);
+
+    // Ovo pomeriti u drugu funkciju
+    // jedna funkcija koja se poziva kada se izvrsava step by step i druga funkcija koja se poziva kada ide sve odjednom
+    //
+    if (this->simulation) {
+        QObject::connect(&algoRunner, SIGNAL(xStepped(QString)), this, SLOT(passXStepped(QString)));
+        QObject::connect(&algoRunner, SIGNAL(yStepped(QString)), this, SLOT(passYStepped(QString)));
+        QObject::connect(&algoRunner, SIGNAL(zStepped(QString)), this, SLOT(passZStepped(QString)));
+        this->loadKey(this->key);
+    }
 
 
     if (inFile.open(QIODevice::ReadOnly | QIODevice::Text)
@@ -210,7 +233,7 @@ void CryptoDirManip::fileToAlgo(const QString current)
         while (!inReader.atEnd()) {
             inputTxt = inReader.readLine();
             //maybe not add a new line?
-            fileOut << ptAlgoRunner->runAlgo(inputTxt, isEncryptionRunning) << "\n";
+            fileOut << algoRunner.runAlgo(inputTxt, isEncryptionRunning) << "\n";
         }
 
         qDebug() << "kraj za " << current;
@@ -236,7 +259,7 @@ void CryptoDirManip::writeConfig()
         cfileOut << this->inputDir << "\n";
         cfileOut << this->outputDir << "\n";
         cfileOut << QDateTime().currentDateTime().toTime_t() << "\n";
-        cfileOut << this->algoRunner->returnKey() << "\n";
+        cfileOut << this->key << "\n";
         outFile.commit();
     }
 }
@@ -247,8 +270,7 @@ void CryptoDirManip::readConfig()
     QTextStream cfileIn(&inFile);
     if (inFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
         int boolHelper;
-        uint timeStamp;
-        QString key;
+        uint timeStamp;;
 
         cfileIn >> boolHelper;
         this->encryption = boolHelper;
@@ -264,9 +286,8 @@ void CryptoDirManip::readConfig()
 
         cfileIn >> timeStamp;
 
-        cfileIn >> key;
+        cfileIn >> this->key;
         //this->algoRunner = new SimpleSubstitutioner(key);
-        this->algoRunner = new A51(key);
         inFile.close();
     }
 }
@@ -298,13 +319,14 @@ void CryptoDirManip::queueManip()
     while (!this->closeApp) {
         if (this->running) {
             this->mutex.lock();
+            if (this->simulation) {
+                while (this->runingThread != 0) {};
+            }
             if (this->fileNames.length() != 0 && this->runningThreads < 16) {
                 this->runningThreads++;
-                qDebug() << "Enkriptuj!";
                 inputDirPath = this->inputDir;
                 outputDirPath = this->outputDir;
                 isEncryptionRunning = this->encryption;
-                ptAlgoRunner = this->algoRunner;
 
                 QString fName = this->fileNames.takeFirst();
                 QtConcurrent::run(this, &CryptoDirManip::fileToAlgo, fName);

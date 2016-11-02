@@ -21,11 +21,12 @@ class CryptoDirManip: public QObject
 private:
     QString inputDir;
     QString outputDir;
-    CryptoAlgorithm *algoRunner;
+    QString key;
     bool watchMode = false;
     bool encryption = false;
     bool running = false;
     bool closeApp = false;
+    bool simulation = false;
     int oldLength = 0;
     QList<QFuture<void>> mapThread;
     QFuture<void> queueThread;
@@ -83,7 +84,11 @@ public slots:
      * @param encryption Set algorithm to do the encryption
      */
     void run(const bool encryption);
-    //stop();
+
+    void passXStepped(const QString& xreg) { emit this->changeRegX(xreg); }
+    void passYStepped(const QString& yreg) { emit this->changeRegY(yreg); }
+    void passZStepped(const QString& zreg) { emit this->changeRegZ(zreg); }
+    void simulationMode(const bool sim) { this->simulation = sim; }
 signals:
     void inDirFile(const QString &input);
     void outDirFile(const QString &output);
@@ -91,6 +96,9 @@ signals:
     void encryptionFile(const bool encry);
     void runningFile(const bool running);
     void watchFile(const bool watch);
+    void changeRegX(const QString& regX);
+    void changeRegY(const QString& regY);
+    void changeRegZ(const QString& regZ);
 };
 
 #endif // CRYPTODIRMANIP_H

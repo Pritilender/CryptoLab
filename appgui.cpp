@@ -26,13 +26,13 @@ appGui::appGui(QWidget *parent) :
 
     this->scene.setSceneRect(0, 0, 390, 270);
 
-    for (int reg = 0; reg <= DEST; reg++) {
-        QList<QGraphicsTextItem*> list;
+    for (int reg = 0; reg <= DST; reg++) {
+        QList<QGraphicsTextItem *> list;
         int blocks;
         switch (reg) {
         case SRC:
-        case DEST:
-            blocks = 25;
+        case DST:
+            blocks = 23;
             break;
         case X:
             blocks = 19;
@@ -50,21 +50,27 @@ appGui::appGui(QWidget *parent) :
         }
         this->registerMatrix.append(list);
     }
-
-    this->drawRegister(SRC, "101010100111100001010101", "src");
-    this->drawRegister(X, "1011110000101010110", "x");
-
-    this->drawRegister(DEST, "1011110000110111010110", "dest");
 }
 
 void appGui::drawRegister(regs reg, const QString &bits, const QString &regName)
 {
     this->scene.addText(regName)->setPos(0, this->calulateYFont(reg));
+    QPen pen(QColor(255, 0, 0));
+    QPen *rectPen = nullptr;
+
     for (int i = 0; i < bits.length(); i++) {
         this->registerMatrix[reg][i]->setPlainText(bits.at(i));
         this->registerMatrix[reg][i]->setPos(this->calculateX(i), this->calulateYFont(reg));
         this->registerMatrix[reg][i]->setVisible(true);
-        this->scene.addRect(this->calculateX(i), this->calculateYReg(reg), REG_BLOCK, REG_BLOCK);
+
+        if ((i == 8 && reg == X) || (i == 10 && (reg == Y || reg == Z)) || (i == 0 && reg == SRC)
+                || (i == 22 && reg == DST)) {
+            rectPen = &pen;
+        } else {
+            rectPen = new QPen();
+        }
+
+        this->scene.addRect(this->calculateX(i), this->calculateYReg(reg), REG_BLOCK, REG_BLOCK, *rectPen);
     }
 
     this->ui->graphicsView->setScene(&this->scene);
@@ -126,9 +132,6 @@ void appGui::on_lneKey_textChanged(const QString &arg1)
 
 void appGui::on_btnInputDir_clicked()
 {
-
-    this->drawRegister(Y, "1011110000101010101010", "y");
-    this->drawRegister(Z, "10111100001010101100110", "z");
     ///TODO check if the directory exists
     const QString inputDir = this->loadDirFile(true);
 
@@ -214,4 +217,40 @@ void appGui::runningFile(const bool running)
 void appGui::watchFile(const bool watch)
 {
     this->ui->cbxWatch->setChecked(watch);
+}
+
+void appGui::on_btnNext_clicked()
+{
+
+}
+
+void appGui::on_cbxSimulation_clicked(bool checked)
+{
+    this->ui->btnNext->setEnabled(checked);
+    emit this->simulationChanged(checked);
+}
+
+void appGui::drawRegisterX(const QString &regx)
+{
+    this->drawRegister(X, regx, "X");
+}
+
+void appGui::drawRegisterY(const QString &regy)
+{
+    this->drawRegister(Y, regy, "Y");
+}
+
+void appGui::drawRegisterZ(const QString &regz)
+{
+    this->drawRegister(Z, regz, "Z");
+}
+
+void appGui::drawSrc(const QString &src)
+{
+    this->drawRegister(SRC, src, "src");
+}
+
+void appGui::drawDst(const QString &dst)
+{
+    this->drawRegister(DST, dst, "dst");
 }

@@ -21,26 +21,33 @@ QString A51::runAlgo(const QString &src, bool encrypt)
     this->resetRegisters();
 
     for (int i = 0; i < src.length(); i++) {
-        bool m = this->majorityVote();
-        bool s;
-        bool input = src.at(i).toLatin1() == '1' ? true : false;
-
-        if (this->x.at(8) == m) {
-            this->stepX();
-        }
-        if (this->y.at(10) == m) {
-            this->stepY();
-        }
-        if (this->z.at(10) == m) {
-            this->stepZ();
-        }
-
-        s = this->x.at(18) ^ this->y.at(21) ^ this->z.at(22);
-
-        res.append((s ^ input) ? '1' : '0');
+        res.append(this->stepByStep(src.at(i)));
     }
 
     return res;
+}
+
+QString A51::stepByStep(const QChar &srcChar){
+    bool m = this->majorityVote();
+    bool s;
+    bool input = srcChar.toLatin1() == '1' ? true : false;
+
+    if (this->x.at(8) == m) {
+        this->stepX();
+        emit this->xStepped(this->bitArrayToString(this->x));
+    }
+    if (this->y.at(10) == m) {
+        this->stepY();
+        emit this->yStepped(this->bitArrayToString(this->y));
+    }
+    if (this->z.at(10) == m) {
+        this->stepZ();
+        emit this->zStepped(this->bitArrayToString(this->z));
+    }
+
+    s = this->x.at(18) ^ this->y.at(21) ^ this->z.at(22);
+
+    return (s ^ input) ? "1" : "0";
 }
 
 QString A51::returnKey()
@@ -111,4 +118,14 @@ void A51::resetRegisters()
             this->z.setBit(i - 19 - 22, this->key.at(i));
         }
     }
+}
+
+QString A51::bitArrayToString(const QBitArray &bArr)
+{
+    QString res;
+    //qDebug() << bArr.size();
+    for (int i = 0; i < bArr.size(); i++) {
+        res.append(bArr.at(i) ? "1" : "0");
+    }
+    return res;
 }

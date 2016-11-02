@@ -14,7 +14,11 @@ int main(int argc, char *argv[])
     QObject::connect(&w, SIGNAL(keyLoad(QString)), &dirManip, SLOT(loadKey(const QString)));
     QObject::connect(&w, SIGNAL(watchModeChanged(bool)), &dirManip, SLOT(setWatchMode(bool)));
     QObject::connect(&w, SIGNAL(startAlgo(bool)), &dirManip, SLOT(run(bool)));
+    QObject::connect(&w, SIGNAL(simulationChanged(bool)), &dirManip, SLOT(simulationMode(bool)));
 
+    QObject::connect(&dirManip, SIGNAL(changeRegX(QString)), &w, SLOT(drawRegisterX(QString)));
+    QObject::connect(&dirManip, SIGNAL(changeRegY(QString)), &w, SLOT(drawRegisterY(QString)));
+    QObject::connect(&dirManip, SIGNAL(changeRegZ(QString)), &w, SLOT(drawRegisterZ(QString)));
     QObject::connect(&dirManip, SIGNAL(inDirFile(const QString &)), &w, SLOT(inDirFile(const QString &)));
     QObject::connect(&dirManip, SIGNAL(outDirFile(const QString &)), &w, SLOT(outDirFile(const QString &)));
     QObject::connect(&dirManip, SIGNAL(keyFile(const QString &)), &w, SLOT(keyFile(const QString &)));
