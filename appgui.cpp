@@ -64,7 +64,7 @@ void appGui::drawRegister(regs reg, const QString &bits, const QString &regName)
         this->registerMatrix[reg][i]->setVisible(true);
 
         if ((i == 8 && reg == X) || (i == 10 && (reg == Y || reg == Z)) || (i == 0 && reg == SRC)
-                || (i == 22 && reg == DST)) {
+                || (i == 0 && reg == DST)) {
             rectPen = &pen;
         } else {
             rectPen = new QPen();

@@ -150,7 +150,7 @@ CryptoDirManip::~CryptoDirManip()
 
 void CryptoDirManip::loadInputDir(const QString &input)
 {
-    QDirIterator inputDir(input, QStringList() << "*.txt" << "*.crypto", QDir::Files);
+    QDirIterator inputDir(input, QDir::Files);
     this->inputDir = input;
 
     while (inputDir.hasNext()) {
@@ -196,23 +196,23 @@ void CryptoDirManip::setWatchMode(const bool mode)
     }
 }
 
-bool isEncryptionRunning;
-
 void CryptoDirManip::fileToAlgo(const QString current)
 {
     qDebug() << "Pocetak za " << current;
 
     QString base = current;
-    const QString outExtension = isEncryptionRunning ? ".crypto" : ".txt";
-    const QString inExtension = isEncryptionRunning ? ".txt" : ".crypto";
+    QString outFilename = this->outputDir + "/";
+    if (this->encryption) {
+        outFilename += base + ".crypto";
+    } else {
+        outFilename += base.remove(".crypto");
+    }
+
     QFile inFile(this->inputDir + "/" + current);
-    QSaveFile outFile(this->outputDir + "/" + base.remove(inExtension) + outExtension);
+    QSaveFile outFile(outFilename);
 
     A51 algoRunner(this->key);
 
-    // Ovo pomeriti u drugu funkciju
-    // jedna funkcija koja se poziva kada se izvrsava step by step i druga funkcija koja se poziva kada ide sve odjednom
-    //
     if (this->simulation) {
         QObject::connect(&algoRunner, SIGNAL(xStepped(QString)), this, SLOT(passXStepped(QString)));
         QObject::connect(&algoRunner, SIGNAL(yStepped(QString)), this, SLOT(passYStepped(QString)));
@@ -231,15 +231,15 @@ void CryptoDirManip::fileToAlgo(const QString current)
         while (!inReader.atEnd()) {
             if (this->simulation && this->nextStep) {
                 QChar inputChar = inReader.read(1).at(0);
-                emit this->changeSrc(' ' + inputChar);
+                emit this->changeSrc(QString(inputChar));
                 QChar outputChar = algoRunner.stepByStep(inputChar).at(0);
-                emit this->changeDst(' ' + outputChar);
+                emit this->changeDst(QString(outputChar));
                 fileOut << outputChar;
                 this->nextStep = false;
             } else if (!this->simulation) {
                 inputTxt = inReader.readLine();
                 //maybe not add a new line?
-                fileOut << algoRunner.runAlgo(inputTxt, isEncryptionRunning) << "\n";
+                fileOut << algoRunner.runAlgo(inputTxt, this->encryption) << "\n";
             }
         }
 
@@ -306,7 +306,7 @@ void CryptoDirManip::readConfig()
 
 void CryptoDirManip::run(const bool encryption)
 {
-    const QString inExtension = encryption ? ".txt" : ".crypto";
+    QRegExp inExtension(encryption ? "^(?:(?!.\\.crypto).)+$" : "[.]crypto$");
 
     QMutableStringListIterator it(this->fileNames);
 
@@ -318,7 +318,7 @@ void CryptoDirManip::run(const bool encryption)
     while (it.hasNext()) {
         QString next = it.next();
 
-        if (!next.endsWith(inExtension)) {
+        if (inExtension.indexIn(next) == -1) {
             it.remove();
         }
     }
@@ -338,7 +338,6 @@ void CryptoDirManip::queueManip()
             }
             if (this->fileNames.length() != 0 && this->runningThreads < 16) {
                 this->runningThreads++;
-                isEncryptionRunning = this->encryption;
 
                 QString fName = this->fileNames.takeFirst();
                 QtConcurrent::run(this, &CryptoDirManip::fileToAlgo, fName);
