@@ -18,11 +18,13 @@ bool appGui::canRun()
            !this->ui->lneOutputDir->text().isEmpty();
 }
 
-appGui::appGui(QWidget *parent) :
+appGui::appGui(CryptoQueue *q = 0, QWidget *parent) :
     QWidget(parent),
     ui(new Ui::appGui)
 {
     ui->setupUi(this);
+
+    this->q = q;
 
     this->scene.setSceneRect(0, 0, 390, 270);
 
@@ -253,4 +255,9 @@ void appGui::drawSrc(const QString &src)
 void appGui::drawDst(const QString &dst)
 {
     this->drawRegister(DST, dst, "dst");
+}
+
+void appGui::on_pushButton_clicked()
+{
+    QMessageBox::information(this, "Queue", QString::number(this->q->length()));
 }

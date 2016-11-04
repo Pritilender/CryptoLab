@@ -1,6 +1,8 @@
 #ifndef APPGUI_H
 #define APPGUI_H
 
+#include "cryptoqueue.h"
+
 #include <QGraphicsView>
 #include <QWidget>
 #include <cryptodirmanip.h>
@@ -44,8 +46,9 @@ private:
     }
 
 public:
-    explicit appGui(QWidget *parent = 0);
+    explicit appGui(CryptoQueue* q, QWidget *parent = 0);
     ~appGui();
+    CryptoQueue* q;
 
 private slots:
     void on_btnEncrypt_clicked();
@@ -63,6 +66,8 @@ private slots:
     void watchFile(const bool watch);
     void on_btnNext_clicked();
     void on_cbxSimulation_clicked(bool checked);
+
+    void on_pushButton_clicked();
 
 public slots:
     void drawRegisterX(const QString &regx);

@@ -16,14 +16,22 @@ SOURCES += main.cpp\
         appgui.cpp \
     simplesubstitutioner.cpp \
     keyvalidator.cpp \
-    cryptodirmanip.cpp \
-    a51.cpp
+    a51.cpp \
+    #tea.cpp \
+    cryptoqueue.cpp \
+    cryptowatcher.cpp \
+    cryptodispatcher.cpp \
+    cryptoworker.cpp
 
 HEADERS  += appgui.h \
     simplesubstitutioner.h \
     keyvalidator.h \
-    cryptodirmanip.h \
     cryptoalgorithm.h \
-    a51.h
+    a51.h \
+#    tea.h \
+    cryptoqueue.h \
+    cryptowatcher.h \
+    cryptodispatcher.h \
+    cryptoworker.h
 
 FORMS    += appgui.ui

@@ -37,13 +37,9 @@ private:
     QFuture<void> conc;
     QMutex mutex;
     QMutex fileMutex;
-    //inotify
-    int fd;
-    int wd;
+
     QString configPath = "config.file";
     int runningThreads = 0;
-
-    QList<QString> fileNames;
 
     void inotifyThread();
     /**
