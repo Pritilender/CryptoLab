@@ -2,6 +2,7 @@
 #include <QApplication>
 #include "a51.h"
 #include "cryptodirmanip.h"
+#include "cryptodispatcher.h"
 #include "cryptoqueue.h"
 #include "cryptowatcher.h"
 
@@ -11,13 +12,15 @@ int main(int argc, char *argv[])
 //    CryptoDirManip dirManip;
     CryptoQueue queue;
     CryptoWatcher watcher;
-    //CryptoWorker worker;
+    CryptoDispatcher dispatcher(&queue);
+
     appGui w(&queue);
     QObject::connect(&w, SIGNAL(inDirLoad(const QString)), &watcher, SLOT(setInputDir(QString)));
     QObject::connect(&w, SIGNAL(outDirLoad(QString)), &watcher, SLOT(setOutputDir(QString)));
-//    QObject::connect(&w, SIGNAL(keyLoad(QString)), &dirManip, SLOT(loadKey(const QString)));
-//    QObject::connect(&w, SIGNAL(startAlgo(bool)), &dirManip, SLOT(run(bool)));
     QObject::connect(&w, SIGNAL(watchModeChanged(bool)), &watcher, SLOT(watchModeChange(bool)));
+
+    QObject::connect(&w, SIGNAL(keyLoad(QString)), &dispatcher, SLOT(setKey(QString)));
+    QObject::connect(&w, SIGNAL(startAlgo(const bool)), &dispatcher, SLOT(run(const bool)));
 //    QObject::connect(&w, SIGNAL(simulationChanged(bool)), &dirManip, SLOT(simulationMode(bool)));
 //    QObject::connect(&w, SIGNAL(nextStep()), &dirManip, SLOT(stepNext()));
 
@@ -26,6 +29,7 @@ int main(int argc, char *argv[])
     QObject::connect(&watcher, SIGNAL(removedFile(const QString&)), &queue, SLOT(removeFile(const QString&)));
 
     watcher.start();
+    dispatcher.start();
 //    QObject::connect(&dirManip, SIGNAL(changeRegX(QString)), &w, SLOT(drawRegisterX(QString)));
 //    QObject::connect(&dirManip, SIGNAL(changeRegY(QString)), &w, SLOT(drawRegisterY(QString)));
 //    QObject::connect(&dirManip, SIGNAL(changeRegZ(QString)), &w, SLOT(drawRegisterZ(QString)));

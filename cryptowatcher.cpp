@@ -33,8 +33,6 @@ void CryptoWatcher::dispatchSignal(struct inotify_event *event)
 {
     int deduceVal = this->deduceEvent(event);
 
-    qDebug() << deduceVal << event->name;
-
     QString path = this->inputDirPath + '/' + event->name;
     switch (deduceVal) {
     case 1:

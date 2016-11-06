@@ -137,7 +137,7 @@
      <item row="3" column="1">
       <widget class="QPushButton" name="btnEncrypt">
        <property name="enabled">
-        <bool>false</bool>
+        <bool>true</bool>
        </property>
        <property name="text">
         <string>Enkriptuj</string>
@@ -205,7 +205,7 @@
      <item row="3" column="2">
       <widget class="QPushButton" name="btnDecrypt">
        <property name="enabled">
-        <bool>false</bool>
+        <bool>true</bool>
        </property>
        <property name="text">
         <string>Dekriptuj</string>

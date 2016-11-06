@@ -87,6 +87,9 @@ appGui::~appGui()
 
 void appGui::on_btnEncrypt_clicked()
 {
+    if (!this->ui->cbxWatch->isChecked()) {
+        emit this->inDirLoad(this->ui->lneInputDir->text());
+    }
     emit this->startAlgo(true);
 }
 
@@ -139,10 +142,10 @@ void appGui::on_btnInputDir_clicked()
 
     ui->lneInputDir->setText(inputDir);
 
-    ui->btnEncrypt->setEnabled(this->canRun());
-    ui->btnDecrypt->setEnabled(this->canRun());
+    //ui->btnEncrypt->setEnabled(this->canRun());
+    //ui->btnDecrypt->setEnabled(this->canRun());
 
-    emit inDirLoad(inputDir);
+    //emit inDirLoad(inputDir);
 }
 
 
@@ -153,8 +156,8 @@ void appGui::on_btnOutputDir_clicked()
 
     ui->lneOutputDir->setText(outputDir);
 
-    ui->btnEncrypt->setEnabled(this->canRun());
-    ui->btnDecrypt->setEnabled(this->canRun());
+    //ui->btnEncrypt->setEnabled(this->canRun());
+    //ui->btnDecrypt->setEnabled(this->canRun());
 
     emit outDirLoad(outputDir);
 }
@@ -174,7 +177,7 @@ QString appGui::loadDirFile(bool dir)
 
 void appGui::on_btnDecrypt_clicked()
 {
-    emit startAlgo(false);
+    emit this->startAlgo(false);
 }
 
 void appGui::on_cbxWatch_clicked(bool checked)
@@ -186,24 +189,24 @@ void appGui::inDirFile(const QString &inDir)
 {
     this->ui->lneInputDir->setText(inDir);
 
-    ui->btnEncrypt->setEnabled(this->canRun());
-    ui->btnDecrypt->setEnabled(this->canRun());
+    //ui->btnEncrypt->setEnabled(this->canRun());
+    //ui->btnDecrypt->setEnabled(this->canRun());
 }
 
 void appGui::outDirFile(const QString &output)
 {
     this->ui->lneOutputDir->setText(output);
 
-    ui->btnEncrypt->setEnabled(this->canRun());
-    ui->btnDecrypt->setEnabled(this->canRun());
+    //ui->btnEncrypt->setEnabled(this->canRun());
+    //ui->btnDecrypt->setEnabled(this->canRun());
 }
 
 void appGui::keyFile(const QString &key)
 {
     this->ui->lneKey->setText(key);
 
-    ui->btnEncrypt->setEnabled(this->canRun());
-    ui->btnDecrypt->setEnabled(this->canRun());
+    //ui->btnEncrypt->setEnabled(this->canRun());
+    //ui->btnDecrypt->setEnabled(this->canRun());
 }
 
 void appGui::encryptionFile(const bool encry)
@@ -228,7 +231,7 @@ void appGui::on_btnNext_clicked()
 
 void appGui::on_cbxSimulation_clicked(bool checked)
 {
-    this->ui->btnNext->setEnabled(checked);
+    //this->ui->btnNext->setEnabled(checked);
     emit this->simulationChanged(checked);
 }
 
