@@ -32,5 +32,4 @@ void CryptoDispatcher::dispatch()
     QObject::connect(workerThread, &CryptoWorker::algorithmEnd, this, &CryptoDispatcher::threadEnd);
     QObject::connect(workerThread, &CryptoWorker::finished, workerThread, &QObject::deleteLater);
     workerThread->start();
-    this->runningThreads--;
 }
