@@ -5,7 +5,6 @@
 
 #include <QGraphicsView>
 #include <QWidget>
-#include <cryptodirmanip.h>
 #include <QGraphicsTextItem>
 
 #define REG_BLOCK 14

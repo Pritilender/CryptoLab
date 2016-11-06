@@ -4,7 +4,6 @@
 #include <cryptoworker.h>
 #include <cryptoqueue.h>
 #include <simplesubstitutioner.h>
-#include <a51.h>
 
 class CryptoDispatcher: public QThread
 {

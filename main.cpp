@@ -1,6 +1,5 @@
 #include "appgui.h"
 #include <QApplication>
-#include "a51.h"
 #include "cryptodispatcher.h"
 #include "cryptoqueue.h"
 #include "cryptowatcher.h"
