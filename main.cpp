@@ -15,12 +15,13 @@ int main(int argc, char *argv[])
     CryptoDispatcher dispatcher(&queue);
 
     appGui w(&queue);
-    QObject::connect(&w, SIGNAL(inDirLoad(const QString)), &watcher, SLOT(setInputDir(QString)));
+    QObject::connect(&w, SIGNAL(inDirLoad(QString)), &watcher, SLOT(setInputDir(QString)));
     QObject::connect(&w, SIGNAL(outDirLoad(QString)), &watcher, SLOT(setOutputDir(QString)));
     QObject::connect(&w, SIGNAL(watchModeChanged(bool)), &watcher, SLOT(watchModeChange(bool)));
 
     QObject::connect(&w, SIGNAL(keyLoad(QString)), &dispatcher, SLOT(setKey(QString)));
     QObject::connect(&w, SIGNAL(startAlgo(const bool)), &dispatcher, SLOT(run(const bool)));
+    QObject::connect(&w, SIGNAL(outDirLoad(QString)), &dispatcher, SLOT(setOutDir(QString)));
 //    QObject::connect(&w, SIGNAL(simulationChanged(bool)), &dirManip, SLOT(simulationMode(bool)));
 //    QObject::connect(&w, SIGNAL(nextStep()), &dirManip, SLOT(stepNext()));
 

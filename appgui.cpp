@@ -90,6 +90,8 @@ void appGui::on_btnEncrypt_clicked()
     if (!this->ui->cbxWatch->isChecked()) {
         emit this->inDirLoad(this->ui->lneInputDir->text());
     }
+    emit this->keyLoad(this->ui->lneKey->text());
+    emit this->outDirLoad(this->ui->lneOutputDir->text());
     emit this->startAlgo(true);
 }
 
@@ -109,7 +111,7 @@ void appGui::on_btnKeyLoad_clicked()
 
         keyFile.close();
 
-        emit this->keyLoad(key);
+        //emit this->keyLoad(key);
     } else {
         QMessageBox msg;
         msg.setText("Fajl nije nadjen");
@@ -159,7 +161,7 @@ void appGui::on_btnOutputDir_clicked()
     //ui->btnEncrypt->setEnabled(this->canRun());
     //ui->btnDecrypt->setEnabled(this->canRun());
 
-    emit outDirLoad(outputDir);
+    //emit outDirLoad(outputDir);
 }
 
 QString appGui::loadDirFile(bool dir)
@@ -177,11 +179,17 @@ QString appGui::loadDirFile(bool dir)
 
 void appGui::on_btnDecrypt_clicked()
 {
+    emit this->inDirLoad(this->ui->lneInputDir->text());
+    emit this->keyLoad(this->ui->lneKey->text());
+    emit this->outDirLoad(this->ui->lneOutputDir->text());
     emit this->startAlgo(false);
 }
 
 void appGui::on_cbxWatch_clicked(bool checked)
 {
+    if (checked) {
+        emit this->inDirLoad(this->ui->lneInputDir->text());
+    }
     emit watchModeChanged(checked);
 }
 

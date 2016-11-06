@@ -11,16 +11,10 @@ private:
     QMap<char, char> keyMapping;
 
 public:
-    SimpleSubstitutioner(QString key);
-    QString runAlgo(const QString& src, bool encrypt);
-    QString returnKey(){
-        QString key;
-        foreach(char c, this->keyMapping) {
-            key += c;
-        }
-
-        return key;
-    }
+    SimpleSubstitutioner();
+    void runAlgo(const QString &inFile, const QString &outFile, bool encrypt);
+    QString returnKey();
+    void setKey(QString key);
 };
 
 #endif // SIMPLESUBSTITUTIONER_H

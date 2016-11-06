@@ -4,9 +4,11 @@
 #include <QFileInfo>
 #include <QSaveFile>
 
+#include <QDebug>
+
 QString CryptoWorker::getOutFileName(const QString &outPath)
 {
-    QString base = QFileInfo(this->inFile).baseName();
+    QString base = QFileInfo(this->inFile).fileName();
 
     if (this->encryption) {
         base += ".crypto";
@@ -14,7 +16,7 @@ QString CryptoWorker::getOutFileName(const QString &outPath)
         base = base.remove(".crypto");
     }
 
-    return outPath + base;
+    return outPath + "/" + base;
 }
 
 CryptoWorker::CryptoWorker(const bool encryption, CryptoAlgorithm *alg, const QString &inPath,
