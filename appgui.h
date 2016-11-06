@@ -26,24 +26,6 @@ class appGui : public QWidget
 
 private:
     bool canRun();
-    QGraphicsScene scene;
-    void drawRegister(regs reg, const QString &bits, const QString &regName);
-    QList<QList<QGraphicsTextItem*>> registerMatrix;
-
-    inline double calculateX(int index)
-    {
-        return index * (2 + REG_BLOCK) + REG_LEFT;
-    }
-
-    inline double calulateYFont(regs reg)
-    {
-        return (reg * (REG_BLOCK + REG_SPACE) - FONT_REGULATOR) + REG_START;
-    }
-
-    inline double calculateYReg(regs reg)
-    {
-        return reg * (REG_BLOCK + REG_SPACE) + REG_START;
-    }
 
 public:
     explicit appGui(CryptoQueue* q, QWidget *parent = 0);
@@ -61,20 +43,7 @@ private slots:
     void inDirFile(const QString &inDir);
     void outDirFile(const QString &output);
     void keyFile(const QString &key);
-    void encryptionFile(const bool encry);
-    void runningFile(const bool running);
     void watchFile(const bool watch);
-    void on_btnNext_clicked();
-    void on_cbxSimulation_clicked(bool checked);
-
-    void on_pushButton_clicked();
-
-public slots:
-    void drawRegisterX(const QString &regx);
-    void drawRegisterY(const QString &regy);
-    void drawRegisterZ(const QString &regz);
-    void drawSrc(const QString &src);
-    void drawDst(const QString &dst);
 
 signals:
     void inDirLoad(const QString);

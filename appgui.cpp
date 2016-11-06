@@ -25,60 +25,7 @@ appGui::appGui(CryptoQueue *q = 0, QWidget *parent) :
     ui->setupUi(this);
 
     this->q = q;
-
-    this->scene.setSceneRect(0, 0, 390, 270);
-
-    for (int reg = 0; reg <= DST; reg++) {
-        QList<QGraphicsTextItem *> list;
-        int blocks;
-        switch (reg) {
-        case SRC:
-        case DST:
-            blocks = 23;
-            break;
-        case X:
-            blocks = 19;
-            break;
-        case Y:
-            blocks = 22;
-            break;
-        case Z:
-            blocks = 23;
-            break;
-        }
-        for (int i = 0; i < blocks; i++) {
-            list.append(this->scene.addText("0"));
-            list[i]->setVisible(false);
-        }
-        this->registerMatrix.append(list);
-    }
 }
-
-void appGui::drawRegister(regs reg, const QString &bits, const QString &regName)
-{
-    this->scene.addText(regName)->setPos(0, this->calulateYFont(reg));
-    QPen pen(QColor(255, 0, 0));
-    QPen *rectPen = nullptr;
-
-    for (int i = 0; i < bits.length(); i++) {
-        this->registerMatrix[reg][i]->setPlainText(bits.at(i));
-        this->registerMatrix[reg][i]->setPos(this->calculateX(i), this->calulateYFont(reg));
-        this->registerMatrix[reg][i]->setVisible(true);
-
-        if ((i == 8 && reg == X) || (i == 10 && (reg == Y || reg == Z)) || (i == 0 && reg == SRC)
-                || (i == 0 && reg == DST)) {
-            rectPen = &pen;
-        } else {
-            rectPen = new QPen();
-        }
-
-        this->scene.addRect(this->calculateX(i), this->calculateYReg(reg), REG_BLOCK, REG_BLOCK, *rectPen);
-    }
-
-    this->ui->graphicsView->setScene(&this->scene);
-    this->ui->graphicsView->show();
-}
-
 
 appGui::~appGui()
 {
@@ -217,58 +164,7 @@ void appGui::keyFile(const QString &key)
     //ui->btnDecrypt->setEnabled(this->canRun());
 }
 
-void appGui::encryptionFile(const bool encry)
-{
-    this->ui->lblStatus->setText(encry ? "Enkripcija" : "Dekripcija");
-}
-
-void appGui::runningFile(const bool running)
-{
-    this->ui->lblRunning->setText(running ? "u toku..." : "kraj.");
-}
-
 void appGui::watchFile(const bool watch)
 {
     this->ui->cbxWatch->setChecked(watch);
-}
-
-void appGui::on_btnNext_clicked()
-{
-    emit this->nextStep();
-}
-
-void appGui::on_cbxSimulation_clicked(bool checked)
-{
-    //this->ui->btnNext->setEnabled(checked);
-    emit this->simulationChanged(checked);
-}
-
-void appGui::drawRegisterX(const QString &regx)
-{
-    this->drawRegister(X, regx, "X");
-}
-
-void appGui::drawRegisterY(const QString &regy)
-{
-    this->drawRegister(Y, regy, "Y");
-}
-
-void appGui::drawRegisterZ(const QString &regz)
-{
-    this->drawRegister(Z, regz, "Z");
-}
-
-void appGui::drawSrc(const QString &src)
-{
-    this->drawRegister(SRC, src, "src");
-}
-
-void appGui::drawDst(const QString &dst)
-{
-    this->drawRegister(DST, dst, "dst");
-}
-
-void appGui::on_pushButton_clicked()
-{
-    QMessageBox::information(this, "Queue", QString::number(this->q->length()));
 }

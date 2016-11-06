@@ -9,8 +9,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>762</width>
-    <height>330</height>
+    <width>341</width>
+    <height>198</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -19,12 +19,6 @@
     <verstretch>0</verstretch>
    </sizepolicy>
   </property>
-  <property name="minimumSize">
-   <size>
-    <width>762</width>
-    <height>330</height>
-   </size>
-  </property>
   <property name="maximumSize">
    <size>
     <width>762</width>
@@ -32,71 +26,38 @@
    </size>
   </property>
   <property name="windowTitle">
-   <string>Cryptography</string>
+   <string>Simple substitution</string>
   </property>
   <layout class="QGridLayout" name="gridLayout_5">
    <item row="0" column="0">
     <layout class="QGridLayout" name="gridLayout_4">
-     <item row="3" column="0">
-      <widget class="QCheckBox" name="cbxWatch">
+     <item row="1" column="0" colspan="2">
+      <layout class="QGridLayout" name="gridLayout_2">
+       <item row="0" column="0">
+        <layout class="QVBoxLayout" name="verticalLayout">
+         <item>
+          <widget class="QLabel" name="lblInputDir">
+           <property name="text">
+            <string>Ulazni direktorijum</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLineEdit" name="lneInputDir"/>
+         </item>
+        </layout>
+       </item>
+      </layout>
+     </item>
+     <item row="3" column="1">
+      <widget class="QPushButton" name="btnEncrypt">
+       <property name="enabled">
+        <bool>true</bool>
+       </property>
        <property name="text">
-        <string>Posmatranje foldera</string>
+        <string>Enkriptuj</string>
        </property>
       </widget>
-     </item>
-     <item row="2" column="2">
-      <layout class="QVBoxLayout" name="verticalLayout_5">
-       <item>
-        <spacer name="verticalSpacer_3">
-         <property name="orientation">
-          <enum>Qt::Vertical</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>20</width>
-           <height>15</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-       <item>
-        <widget class="QPushButton" name="btnOutputDir">
-         <property name="enabled">
-          <bool>true</bool>
-         </property>
-         <property name="text">
-          <string>Ucitaj izlaz</string>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </item>
-     <item row="1" column="2">
-      <layout class="QVBoxLayout" name="verticalLayout_4">
-       <item>
-        <spacer name="verticalSpacer_2">
-         <property name="orientation">
-          <enum>Qt::Vertical</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>20</width>
-           <height>15</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-       <item>
-        <widget class="QPushButton" name="btnInputDir">
-         <property name="enabled">
-          <bool>true</bool>
-         </property>
-         <property name="text">
-          <string>Ucitaj ulaz</string>
-         </property>
-        </widget>
-       </item>
-      </layout>
      </item>
      <item row="0" column="0" colspan="2">
       <layout class="QGridLayout" name="gridLayout">
@@ -115,34 +76,6 @@
         </layout>
        </item>
       </layout>
-     </item>
-     <item row="2" column="0" colspan="2">
-      <layout class="QGridLayout" name="gridLayout_3">
-       <item row="0" column="0">
-        <layout class="QVBoxLayout" name="verticalLayout_6">
-         <item>
-          <widget class="QLabel" name="lblOutputDir">
-           <property name="text">
-            <string>Ulazni direktorijum</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QLineEdit" name="lneOutputDir"/>
-         </item>
-        </layout>
-       </item>
-      </layout>
-     </item>
-     <item row="3" column="1">
-      <widget class="QPushButton" name="btnEncrypt">
-       <property name="enabled">
-        <bool>true</bool>
-       </property>
-       <property name="text">
-        <string>Enkriptuj</string>
-       </property>
-      </widget>
      </item>
      <item row="0" column="2">
       <layout class="QVBoxLayout" name="verticalLayout_3">
@@ -177,30 +110,57 @@
        </item>
       </layout>
      </item>
-     <item row="1" column="0" colspan="2">
-      <layout class="QGridLayout" name="gridLayout_2">
+     <item row="1" column="2">
+      <layout class="QVBoxLayout" name="verticalLayout_4">
+       <item>
+        <spacer name="verticalSpacer_2">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>15</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item>
+        <widget class="QPushButton" name="btnInputDir">
+         <property name="enabled">
+          <bool>true</bool>
+         </property>
+         <property name="text">
+          <string>Ucitaj ulaz</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item row="3" column="0">
+      <widget class="QCheckBox" name="cbxWatch">
+       <property name="text">
+        <string>Posmatranje foldera</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="0" colspan="2">
+      <layout class="QGridLayout" name="gridLayout_3">
        <item row="0" column="0">
-        <layout class="QVBoxLayout" name="verticalLayout">
+        <layout class="QVBoxLayout" name="verticalLayout_6">
          <item>
-          <widget class="QLabel" name="lblInputDir">
+          <widget class="QLabel" name="lblOutputDir">
            <property name="text">
             <string>Ulazni direktorijum</string>
            </property>
           </widget>
          </item>
          <item>
-          <widget class="QLineEdit" name="lneInputDir"/>
+          <widget class="QLineEdit" name="lneOutputDir"/>
          </item>
         </layout>
        </item>
       </layout>
-     </item>
-     <item row="4" column="0">
-      <widget class="QLabel" name="lblStatus">
-       <property name="text">
-        <string>Enkripcija nije započeta.</string>
-       </property>
-      </widget>
      </item>
      <item row="3" column="2">
       <widget class="QPushButton" name="btnDecrypt">
@@ -212,43 +172,28 @@
        </property>
       </widget>
      </item>
-     <item row="4" column="1">
-      <widget class="QLabel" name="lblRunning">
-       <property name="text">
-        <string>Program ceka...</string>
-       </property>
-      </widget>
-     </item>
-     <item row="4" column="2">
-      <widget class="QPushButton" name="pushButton">
-       <property name="text">
-        <string>PushButton</string>
-       </property>
-      </widget>
-     </item>
-    </layout>
-   </item>
-   <item row="0" column="1">
-    <layout class="QVBoxLayout" name="verticalLayout_7">
-     <item>
-      <widget class="QGraphicsView" name="graphicsView"/>
-     </item>
-     <item>
-      <layout class="QHBoxLayout" name="horizontalLayout">
+     <item row="2" column="2">
+      <layout class="QVBoxLayout" name="verticalLayout_5">
        <item>
-        <widget class="QCheckBox" name="cbxSimulation">
-         <property name="text">
-          <string>Mod za simulaciju</string>
+        <spacer name="verticalSpacer_3">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
          </property>
-        </widget>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>15</height>
+          </size>
+         </property>
+        </spacer>
        </item>
        <item>
-        <widget class="QPushButton" name="btnNext">
+        <widget class="QPushButton" name="btnOutputDir">
          <property name="enabled">
-          <bool>false</bool>
+          <bool>true</bool>
          </property>
          <property name="text">
-          <string>Dalje</string>
+          <string>Ucitaj izlaz</string>
          </property>
         </widget>
        </item>
