@@ -21,7 +21,8 @@ SOURCES += main.cpp\
     cryptoqueue.cpp \
     cryptowatcher.cpp \
     cryptodispatcher.cpp \
-    cryptoworker.cpp
+    cryptoworker.cpp \
+    cryptoconfig.cpp
 
 HEADERS  += appgui.h \
     simplesubstitutioner.h \
@@ -32,6 +33,7 @@ HEADERS  += appgui.h \
     cryptoqueue.h \
     cryptowatcher.h \
     cryptodispatcher.h \
-    cryptoworker.h
+    cryptoworker.h \
+    cryptoconfig.h
 
 FORMS    += appgui.ui

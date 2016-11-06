@@ -29,6 +29,9 @@ public:
     ~CryptoDispatcher();
     void run() Q_DECL_OVERRIDE;
 
+signals:
+    void writeConfig();
+
 public slots:
     inline void setEncryption(bool enc) {
         this->encryption = enc;
@@ -42,6 +45,7 @@ public slots:
     inline void threadEnd()
     {
         this->runningThreads--;
+        emit writeConfig();
     }
 
     inline void setKey(QString key) {

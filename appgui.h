@@ -34,7 +34,6 @@ public:
 private slots:
     void on_btnEncrypt_clicked();
     void on_btnKeyLoad_clicked();
-    void on_lneKey_textChanged(const QString &arg1);
     void on_btnInputDir_clicked();
     void on_btnOutputDir_clicked();
     void on_btnDecrypt_clicked();

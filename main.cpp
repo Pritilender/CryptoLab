@@ -1,5 +1,6 @@
 #include "appgui.h"
 #include <QApplication>
+#include "cryptoconfig.h"
 #include "cryptodispatcher.h"
 #include "cryptoqueue.h"
 #include "cryptowatcher.h"
@@ -10,6 +11,7 @@ int main(int argc, char *argv[])
     CryptoQueue queue;
     CryptoWatcher watcher;
     CryptoDispatcher dispatcher(&queue);
+    CryptoConfig config("/home/miksa/QtProjects/CryptographyLab/testDir/simpleSub.config");
 
     appGui w(&queue);
     QObject::connect(&w, SIGNAL(inDirLoad(QString)), &watcher, SLOT(setInputDir(QString)));
@@ -24,10 +26,22 @@ int main(int argc, char *argv[])
     QObject::connect(&watcher, SIGNAL(modifiedFile(const QString&)), &queue, SLOT(updateFile(const QString&)));
     QObject::connect(&watcher, SIGNAL(removedFile(const QString&)), &queue, SLOT(removeFile(const QString&)));
 
+    QObject::connect(&w, SIGNAL(inDirLoad(QString)), &config, SLOT(setInDir(QString)));
+    QObject::connect(&w, SIGNAL(outDirLoad(QString)), &config, SLOT(setOutDir(QString)));
+    QObject::connect(&w, SIGNAL(watchModeChanged(bool)), &config, SLOT(setWatchMode(bool)));
+    QObject::connect(&w, SIGNAL(keyLoad(QString)), &config, SLOT(setKey(QString)));
+    QObject::connect(&dispatcher, SIGNAL(writeConfig()), &config, SLOT(write()));
+    QObject::connect(&config, SIGNAL(inDirLoad(QString)), &w, SLOT(inDirFile(QString)));
+    QObject::connect(&config, SIGNAL(outDirLoad(QString)), &w, SLOT(outDirFile(QString)));
+    QObject::connect(&config, SIGNAL(keyLoad(QString)), &w, SLOT(keyFile(QString)));
+    QObject::connect(&config, SIGNAL(watchModeLoad(bool)), &w, SLOT(watchFile(bool)));
+//    QObject::connect(&config, SIGNAL(lastTime(uint)), &queue, SLOT(filterTime(uint)));
+    QObject::connect(&config, SIGNAL(encryptionLoad(bool)), &dispatcher, SLOT(run(bool)));
+
     watcher.start();
     dispatcher.start();
+    config.read();
 
-    //dirManip.loadConfigFile();
     w.show();
 
     return a.exec();
