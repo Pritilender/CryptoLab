@@ -41,7 +41,7 @@ QString CryptoQueue::removeFirst()
 {
     QString first;
 
-    if (this->fileNames.length() != 0) {
+    if (this->fileNames.length() > 0) {
         this->listMutex.lock();
 
         first = this->fileNames.at(0);
