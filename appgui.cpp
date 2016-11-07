@@ -1,6 +1,5 @@
 #include "appgui.h"
 #include "ui_appgui.h"
-#include "simplesubstitutioner.h"
 #include "QVector"
 #include "QMessageBox"
 #include "keyvalidator.h"

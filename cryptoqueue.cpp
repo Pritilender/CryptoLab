@@ -2,33 +2,39 @@
 
 void CryptoQueue::insertFile(const QString &file)
 {
-    this->listMutex.lock();
+    if (!file.endsWith(".tmp")) {
+        this->listMutex.lock();
 
-    this->fileNames.append(file);
+        this->fileNames.append(file);
 
-    this->listMutex.unlock();
+        this->listMutex.unlock();
+    }
 }
 
 void CryptoQueue::updateFile(const QString &file)
 {
-    this->listMutex.lock();
+    if (!file.endsWith(".tmp")) {
+        this->listMutex.lock();
 
-    if (!this->fileNames.contains(file)) {
-        this->fileNames.append(file);
+        if (!this->fileNames.contains(file)) {
+            this->fileNames.append(file);
+        }
+
+        this->listMutex.unlock();
     }
-
-    this->listMutex.unlock();
 }
 
 void CryptoQueue::removeFile(const QString &file)
 {
-    this->listMutex.lock();
+    if (!file.endsWith(".tmp")) {
+        this->listMutex.lock();
 
-    if (this->fileNames.contains(file)) {
-        this->fileNames.removeOne(file);
+        if (this->fileNames.contains(file)) {
+            this->fileNames.removeOne(file);
+        }
+
+        this->listMutex.unlock();
     }
-
-    this->listMutex.unlock();
 }
 
 QString CryptoQueue::removeFirst()

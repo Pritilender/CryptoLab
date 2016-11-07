@@ -4,7 +4,7 @@
 CryptoDispatcher::CryptoDispatcher(CryptoQueue *q)
 {
     this->queue = q;
-    this->algo = new SimpleSubstitutioner();
+    this->algo = new TEA();
 }
 
 CryptoDispatcher::~CryptoDispatcher()

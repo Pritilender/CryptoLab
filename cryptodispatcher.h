@@ -3,7 +3,7 @@
 
 #include <cryptoworker.h>
 #include <cryptoqueue.h>
-#include <simplesubstitutioner.h>
+#include <tea.h>
 
 class CryptoDispatcher: public QThread
 {
