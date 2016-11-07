@@ -4,6 +4,7 @@
 #include "cryptoalgorithm.h"
 
 #include <QMutex>
+#include <QSaveFile>
 
 
 
@@ -13,7 +14,9 @@ private:
     void feistelRound(uint32_t* v, bool isEncryption);
     uint32_t* key;
     QMutex keyMutex;
-
+    int getBytesAdded(QByteArray &inputBuffer);
+    void fillBuffer(QSaveFile &outFile, QByteArray &inputBuffer);
+    void removeAddedBytes(int bytesToRemove, QByteArray &v0, QByteArray &v1);
 
 public:
     TEA();

@@ -30,6 +30,41 @@ void TEA::feistelRound(uint32_t *v, bool isEncryption)
     v[1] = v1;
 }
 
+int TEA::getBytesAdded(QByteArray &inputBuffer)
+{
+    QDataStream bytesAddedBuffer(&inputBuffer, QIODevice::ReadOnly);
+    int bytesAdded = 0;
+
+    bytesAddedBuffer >> bytesAdded;
+
+    return bytesAdded;
+}
+
+void TEA::fillBuffer(QSaveFile &outFile, QByteArray &inputBuffer)
+{
+    QByteArray numberBuffer;
+    QDataStream numberStream (&numberBuffer, QIODevice::WriteOnly);
+    int bytesAdded = 0;
+
+    while (inputBuffer.length() % 8) {
+        bytesAdded++;
+        inputBuffer.append('0');
+    }
+
+    numberStream << bytesAdded;
+
+    outFile.write(numberBuffer);
+}
+
+void TEA::removeAddedBytes(int bytesToRemove, QByteArray &v0, QByteArray &v1)
+{
+    int bytesv0 = bytesToRemove % 4;
+    int bytesv1 = bytesToRemove;
+
+    v0.chop(bytesv0);
+    v1.chop(bytesv1);
+}
+
 TEA::TEA()
 {
     key = new uint32_t[4];
@@ -42,69 +77,46 @@ TEA::~TEA()
 
 void TEA::runAlgo(const QString &inFile, const QString &outFile, bool encrypt)
 {
-    QFile *inF = new QFile(inFile);
+    QFile inF(inFile);
     QSaveFile outF(outFile);
 
-    if (inF->open(QIODevice::ReadWrite | QIODevice::Append) &&
+    if (inF.open(QIODevice::ReadWrite | QIODevice::Append) &&
             outF.open(QIODevice::WriteOnly)) {
         this->keyMutex.lock();
         this->keyMutex.unlock();
 
-        inF->reset();
-        QByteArray input = inF->readAll();
-
-
+        inF.reset();
+        QByteArray input = inF.readAll();
         int bytesAdded = 0;
+
         if (encrypt) {
-            QByteArray inNo;
-            QDataStream noStr (&inNo, QIODevice::WriteOnly);
-
-            while (input.length() % 8) {
-                bytesAdded++;
-                input.append('0');
-            }
-
-            noStr << bytesAdded;
-
-            outF.write(inNo);
+            this->fillBuffer(outF, input);
         } else {
-            QDataStream noStr (&input, QIODevice::ReadOnly);
-
-            noStr >> bytesAdded;
-
-            qDebug() << bytesAdded;
+            bytesAdded = getBytesAdded(input);
         }
         for (int i = encrypt ? 0 : 4; i < input.length(); i += 8) {
             uint32_t v[2];
             QByteArray v0 = input.mid(i, 4);
             QByteArray v1 = input.mid(i + 4, 4);
 
-            QDataStream stream0(&v0, QIODevice::ReadOnly);
-            QDataStream stream1(&v1, QIODevice::ReadOnly);
+            QDataStream streamIn0(&v0, QIODevice::ReadOnly);
+            QDataStream streamIn1(&v1, QIODevice::ReadOnly);
+            QDataStream streamOut0(&v0, QIODevice::WriteOnly);
+            QDataStream streamOut1(&v1, QIODevice::WriteOnly);
 
-            stream0 >> v[0];
-            stream1 >> v[1];
+            streamIn0 >> v[0];
+            streamIn1 >> v[1];
 
             v0.clear();
             v1.clear();
 
             this->feistelRound(v, encrypt);
 
-            QDataStream stream00(&v0, QIODevice::WriteOnly);
-            QDataStream stream11(&v1, QIODevice::WriteOnly);
-
-            stream00 << v[0];
-            stream11 << v[1];
+            streamOut0 << v[0];
+            streamOut1 << v[1];
 
             if (!encrypt && i + 8 == input.length() && bytesAdded > 0) {
-                // it's the end
-                int bytesv0 = bytesAdded % 4;
-                int bytesv1 = bytesAdded;
-
-                if (bytesAdded > 4) {
-                    v0.chop(bytesv0);
-                }
-                v1.chop(bytesv1);
+                this->removeAddedBytes(bytesAdded, v0, v1);
             }
 
             outF.write(v0);
@@ -112,9 +124,7 @@ void TEA::runAlgo(const QString &inFile, const QString &outFile, bool encrypt)
         }
 
         outF.commit();
-        inF->close();
-
-        delete inF;
+        inF.close();
     }
 }
 
