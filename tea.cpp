@@ -4,6 +4,7 @@
 #include <QDebug>
 #include <QDataStream>
 #include <QSaveFile>
+#include <QImage>
 
 void TEA::feistelRound(uint32_t *v, bool isEncryption)
 {
@@ -126,6 +127,75 @@ void TEA::runAlgo(const QString &inFile, const QString &outFile, bool encrypt)
         outF.commit();
         inF.close();
     }
+}
+
+void TEA::encryptBMP(const QString &inFile, const QString &outFile, bool encrypt)
+{
+    qDebug() << "Start for" << inFile;
+    QFile inF(inFile);
+    QSaveFile outF(outFile);
+
+    if (inF.open(QIODevice::ReadWrite) &&
+            outF.open(QIODevice::WriteOnly)) {
+        this->keyMutex.lock();
+        this->keyMutex.unlock();
+
+        inF.reset();
+        QByteArray input = inF.readAll();
+        int bytesAdded = 0;
+
+        if (encrypt) {
+            while (input.length() % 8) {
+                bytesAdded++;
+                input.append('0');
+            }
+        } else {
+            bytesAdded = getBytesAdded(input);
+        }
+
+        int posStart = encrypt ? 0 : 4;
+
+        uint32_t pos;
+
+        pos = input[10] + 256 * (input[11] + 256 * (input[12] + 256 * input[13]));
+
+        qDebug() << pos;
+
+        for (int i = encrypt ? 0 : 4; i < input.length(); i += 8) {
+            uint32_t v[2];
+            QByteArray v0 = input.mid(i, 4);
+            QByteArray v1 = input.mid(i + 4, 4);
+
+            if (i > pos) {
+
+                QDataStream streamIn0(&v0, QIODevice::ReadOnly);
+                QDataStream streamIn1(&v1, QIODevice::ReadOnly);
+                QDataStream streamOut0(&v0, QIODevice::WriteOnly);
+                QDataStream streamOut1(&v1, QIODevice::WriteOnly);
+
+                streamIn0 >> v[0];
+                streamIn1 >> v[1];
+
+                v0.clear();
+                v1.clear();
+
+                this->feistelRound(v, encrypt);
+
+                streamOut0 << v[0];
+                streamOut1 << v[1];
+
+                if (!encrypt && i + 8 == input.length() && bytesAdded > 0) {
+                    this->removeAddedBytes(bytesAdded, v0, v1);
+                }
+            }
+            outF.write(v0);
+            outF.write(v1);
+        }
+
+        outF.commit();
+        inF.close();
+    }
+    qDebug() << "end";
 }
 
 QString TEA::returnKey()

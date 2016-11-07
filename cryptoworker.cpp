@@ -1,4 +1,5 @@
 #include "cryptoworker.h"
+#include "tea.h"
 
 #include <QFile>
 #include <QFileInfo>
@@ -10,12 +11,13 @@ QString CryptoWorker::getOutFileName(const QString &outPath)
 {
     QString base = QFileInfo(this->inFile).fileName();
 
-    if (this->encryption) {
-        base += ".crypto";
-    } else {
-        base = base.remove(".crypto");
+    if (!base.endsWith(".bmp")) {
+        if (this->encryption) {
+            base += ".crypto";
+        } else {
+            base = base.remove(".crypto");
+        }
     }
-
     return outPath + "/" + base;
 }
 
@@ -30,6 +32,7 @@ CryptoWorker::CryptoWorker(const bool encryption, CryptoAlgorithm *alg, const QS
 
 void CryptoWorker::run()
 {
-    this->algorithm->runAlgo(this->inFile, this->outFile, this->encryption);
+    //this->algorithm->runAlgo(this->inFile, this->outFile, this->encryption);
+    ((TEA*)this->algorithm)->encryptBMP(this->inFile, this->outFile, this->encryption);
     emit this->algorithmEnd();
 }

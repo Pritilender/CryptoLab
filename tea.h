@@ -22,6 +22,7 @@ public:
     TEA();
     ~TEA();
     void runAlgo(const QString& inFile, const QString& outFile, bool encrypt);
+    void encryptBMP(const QString& inFile, const QString& outFile, bool encrypt);
     QString returnKey();
     void setKey(QString key);
 };
