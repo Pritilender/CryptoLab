@@ -22,9 +22,11 @@ QString CryptoWorker::getOutFileName(const QString &outPath)
 }
 
 CryptoWorker::CryptoWorker(const bool encryption, CryptoAlgorithm *alg, const QString &inPath,
-                           const QString &outPath, QObject *parent)
+                           const QString &outPath, const bool xMode, QObject *parent)
 {
+    Q_UNUSED(parent);
     this->encryption = encryption;
+    this->xMode = xMode;
     this->algorithm = alg;
     this->inFile = inPath;
     this->outFile = getOutFileName(outPath);
@@ -32,7 +34,10 @@ CryptoWorker::CryptoWorker(const bool encryption, CryptoAlgorithm *alg, const QS
 
 void CryptoWorker::run()
 {
-    //this->algorithm->runAlgo(this->inFile, this->outFile, this->encryption);
-    ((TEA*)this->algorithm)->encryptBMP(this->inFile, this->outFile, this->encryption);
+    if (this->outFile.endsWith(".bmp")) {
+        ((TEA *)this->algorithm)->encryptBMP(this->inFile, this->outFile, this->encryption, this->xMode);
+    } else {
+        this->algorithm->runAlgo(this->inFile, this->outFile, this->encryption, this->xMode);
+    }
     emit this->algorithmEnd();
 }

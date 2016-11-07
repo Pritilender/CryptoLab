@@ -13,6 +13,7 @@ private:
     bool runMode = false;
     bool encryption = true;
     bool appRunning = true;
+    bool xMode = false;
     QString outDir;
     CryptoAlgorithm* algo;
     CryptoQueue* queue;
@@ -54,8 +55,12 @@ public slots:
 
     inline void run(const bool enc) {
         this->queue->filterForEncryption(enc);
-        this->runMode = true;
         this->encryption = enc;
+        this->runMode = true;
+    }
+
+    inline void setXMode(const bool xMode) {
+        this->xMode = xMode;
     }
 };
 

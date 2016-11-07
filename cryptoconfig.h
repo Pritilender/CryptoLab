@@ -16,6 +16,7 @@ private:
     QString inDir;
     QString outDir;
     bool encryption = false;
+    bool xMode = false;
     bool watchMode = false;
     uint lastEncrypted;
 
@@ -33,6 +34,7 @@ signals:
     void encryptionLoad(const bool);
     void watchModeLoad(const bool);
     void lastTime(const uint);
+    void xModeLoad(const bool);
 
 public slots:
     inline void setKey(const QString &key)

@@ -14,6 +14,9 @@ void CryptoConfig::readFile()
     this->encryption = boolHelper;
 
     file >> boolHelper;
+    this->xMode = boolHelper;
+
+    file >> boolHelper;
     this->watchMode = boolHelper;
 
     file >> this->inDir;
@@ -30,6 +33,8 @@ void CryptoConfig::writeFile()
         file << this->lastEncrypted << "\n";
 
         file << this->encryption << "\n";
+
+        file << this->xMode << "\n";
 
         file << this->watchMode << "\n";
 
@@ -61,6 +66,7 @@ void CryptoConfig::read()
             emit this->keyLoad(this->key);
             emit this->watchModeLoad(this->watchMode);
             emit this->lastTime(this->lastEncrypted);
+            emit this->xModeLoad(this->xMode);
         }
     }
 }

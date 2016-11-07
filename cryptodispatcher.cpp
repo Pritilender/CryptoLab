@@ -28,7 +28,7 @@ void CryptoDispatcher::run()
 void CryptoDispatcher::dispatch()
 {
     QString inPath = this->queue->removeFirst();
-    CryptoWorker *workerThread = new CryptoWorker(this->encryption, algo, inPath, this->outDir);
+    CryptoWorker *workerThread = new CryptoWorker(this->encryption, algo, inPath, this->outDir, this->xMode);
     QObject::connect(workerThread, &CryptoWorker::algorithmEnd, this, &CryptoDispatcher::threadEnd);
     QObject::connect(workerThread, &CryptoWorker::finished, workerThread, &QObject::deleteLater);
     workerThread->start();
