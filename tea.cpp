@@ -53,10 +53,28 @@ void TEA::runAlgo(const QString &inFile, const QString &outFile, bool encrypt)
         inF->reset();
         QByteArray input = inF->readAll();
 
-        while (input.length() % 8) {
-            input.append('0');
+
+        int bytesAdded = 0;
+        if (encrypt) {
+            QByteArray inNo;
+            QDataStream noStr (&inNo, QIODevice::WriteOnly);
+
+            while (input.length() % 8) {
+                bytesAdded++;
+                input.append('0');
+            }
+
+            noStr << bytesAdded;
+
+            outF.write(inNo);
+        } else {
+            QDataStream noStr (&input, QIODevice::ReadOnly);
+
+            noStr >> bytesAdded;
+
+            qDebug() << bytesAdded;
         }
-        for (int i = 0; i < input.length(); i += 8) {
+        for (int i = encrypt ? 0 : 4; i < input.length(); i += 8) {
             uint32_t v[2];
             QByteArray v0 = input.mid(i, 4);
             QByteArray v1 = input.mid(i + 4, 4);
@@ -74,8 +92,20 @@ void TEA::runAlgo(const QString &inFile, const QString &outFile, bool encrypt)
 
             QDataStream stream00(&v0, QIODevice::WriteOnly);
             QDataStream stream11(&v1, QIODevice::WriteOnly);
+
             stream00 << v[0];
             stream11 << v[1];
+
+            if (!encrypt && i + 8 == input.length() && bytesAdded > 0) {
+                // it's the end
+                int bytesv0 = bytesAdded % 4;
+                int bytesv1 = bytesAdded;
+
+                if (bytesAdded > 4) {
+                    v0.chop(bytesv0);
+                }
+                v1.chop(bytesv1);
+            }
 
             outF.write(v0);
             outF.write(v1);
