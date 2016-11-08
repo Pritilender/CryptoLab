@@ -30,6 +30,8 @@ public:
     explicit appGui(CryptoQueue* q, QWidget *parent = 0);
     ~appGui();
     CryptoQueue* q;
+    QPixmap beforeBMP, afterBMP;
+    QGraphicsScene beforeScene, afterScene;
 
 private slots:
     void on_btnEncrypt_clicked();
@@ -44,6 +46,13 @@ private slots:
     void watchFile(const bool watch);
     void on_btnIVLoad_clicked();
 
+    void on_cbxBMP_clicked(bool checked);
+
+public slots:
+    void on_btnNext_clicked();
+    void setBeforeBMP(QString bB);
+    void setAfterBMP(QString aB);
+
 signals:
     void inDirLoad(const QString);
     void outDirLoad(const QString);
@@ -53,6 +62,8 @@ signals:
     void simulationChanged(const bool);
     void nextStep(void);
     void iVLoad(const QString);
+    void BMPModeChanged(const bool);
+    void nextClicked(void);
 
 private:
     Ui::appGui *ui;

@@ -14,6 +14,8 @@ private:
     bool encryption = true;
     bool appRunning = true;
     bool xMode = false;
+    bool bmpMode = false;
+    bool next = false;
     QString outDir;
     CryptoAlgorithm* algo;
     CryptoQueue* queue;
@@ -32,6 +34,8 @@ public:
 
 signals:
     void writeConfig();
+    void inBMP(QString);
+    void outBMP(QString);
 
 public slots:
     inline void setEncryption(bool enc) {
@@ -65,6 +69,22 @@ public slots:
 
     inline void setIV(QString iv) {
         ((TEA*)this->algo)->setIV(iv);
+    }
+
+    inline void inBMPReady(QString iB) {
+        emit this->inBMP(iB);
+    }
+
+    inline void outBMPReady(QString oB) {
+        emit this->outBMP(oB);
+    }
+
+    inline void nextBMP() {
+        this->next = true;
+    }
+
+    inline void setBMPMode(bool bM) {
+        this->bmpMode = bM;
     }
 };
 

@@ -101,6 +101,7 @@ void appGui::on_btnDecrypt_clicked()
 
 void appGui::on_cbxWatch_clicked(bool checked)
 {
+    this->ui->cbxBMP->setEnabled(!checked);
     if (checked) {
         emit this->inDirLoad(this->ui->lneInputDir->text());
     }
@@ -146,4 +147,31 @@ void appGui::on_btnIVLoad_clicked()
         msg.setText("Fajl nije nadjen");
         msg.exec();
     }
+}
+
+void appGui::on_cbxBMP_clicked(bool checked)
+{
+    this->ui->cbxWatch->setEnabled(!checked);
+    emit this->BMPModeChanged(checked);
+}
+
+void appGui::on_btnNext_clicked()
+{
+    emit this->nextClicked();
+}
+
+void appGui::setBeforeBMP(QString bB)
+{
+    this->beforeBMP.load(bB);
+    this->beforeScene.addPixmap(this->beforeBMP);
+
+    this->ui->gvBefore->setScene(&this->beforeScene);
+}
+
+void appGui::setAfterBMP(QString aB)
+{
+    this->afterBMP.load(aB);
+    this->afterScene.addPixmap(this->afterBMP);
+
+    this->ui->gvAfter->setScene(&this->afterScene);
 }

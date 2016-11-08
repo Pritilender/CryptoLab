@@ -234,7 +234,7 @@ void TEA::encryptBMP(const QString &inFile, const QString &outFile, bool encrypt
         uint32_t iv[2] = {this->iv[0], this->iv[1]};
         uint32_t v[2];
 
-        for (int i = encrypt ? 0 : 4; i < input.length(); i += 8) {
+        for (int i = 0; i < input.length(); i += 8) {
             QByteArray v0 = input.mid(i, 4);
             QByteArray v1 = input.mid(i + 4, 4);
 

@@ -40,6 +40,10 @@ int main(int argc, char *argv[])
     QObject::connect(&config, SIGNAL(encryptionLoad(bool)), &dispatcher, SLOT(run(bool)));
     QObject::connect(&config, SIGNAL(xModeLoad(bool)), &dispatcher, SLOT(setXMode(bool)));
 
+    QObject::connect(&dispatcher, SIGNAL(inBMP(QString)), &w, SLOT(setBeforeBMP(QString)));
+    QObject::connect(&dispatcher, SIGNAL(outBMP(QString)), &w, SLOT(setAfterBMP(QString)));
+    QObject::connect(&w, SIGNAL(nextClicked()), &dispatcher, SLOT(nextBMP()));
+    QObject::connect(&w, SIGNAL(BMPModeChanged(bool)), &dispatcher, SLOT(setBMPMode(bool)));
     watcher.start();
     dispatcher.start();
     config.read();
