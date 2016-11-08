@@ -27,7 +27,7 @@ CryptoWorker::CryptoWorker(const bool encryption, CryptoAlgorithm *alg, const QS
     Q_UNUSED(parent);
     this->encryption = encryption;
     this->xMode = xMode;
-    this->algorithm = alg;
+    this->algorithm = new TEA((TEA*)alg);
     this->inFile = inPath;
     this->outFile = getOutFileName(outPath);
 }

@@ -37,6 +37,7 @@ void appGui::on_btnEncrypt_clicked()
         emit this->inDirLoad(this->ui->lneInputDir->text());
     }
     emit this->keyLoad(this->ui->lneKey->text());
+    emit this->iVLoad(this->ui->lneIV->text());
     emit this->outDirLoad(this->ui->lneOutputDir->text());
     emit this->startAlgo(true);
 }
@@ -124,4 +125,25 @@ void appGui::keyFile(const QString &key)
 void appGui::watchFile(const bool watch)
 {
     this->ui->cbxWatch->setChecked(watch);
+}
+
+void appGui::on_btnIVLoad_clicked()
+{
+    QString fname = this->loadDirFile(false);
+    QFile iVFile(fname);
+
+    if (iVFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        QTextStream iVReader(&iVFile);
+        QString iv = iVReader.readAll().trimmed();
+
+        ui->lneIV->setText("");
+        ui->lneIV->setText(iv.trimmed());
+        ui->lneIV->setFocus();
+
+        iVFile.close();
+    } else {
+        QMessageBox msg;
+        msg.setText("Fajl nije nadjen");
+        msg.exec();
+    }
 }

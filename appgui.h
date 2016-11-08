@@ -42,6 +42,7 @@ private slots:
     void outDirFile(const QString &output);
     void keyFile(const QString &key);
     void watchFile(const bool watch);
+    void on_btnIVLoad_clicked();
 
 signals:
     void inDirLoad(const QString);
@@ -51,6 +52,7 @@ signals:
     void startAlgo(const bool);
     void simulationChanged(const bool);
     void nextStep(void);
+    void iVLoad(const QString);
 
 private:
     Ui::appGui *ui;

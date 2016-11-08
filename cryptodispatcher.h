@@ -62,6 +62,10 @@ public slots:
     inline void setXMode(const bool xMode) {
         this->xMode = xMode;
     }
+
+    inline void setIV(QString iv) {
+        ((TEA*)this->algo)->setIV(iv);
+    }
 };
 
 #endif // CRYPTODISPATCHER_H

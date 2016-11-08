@@ -41,11 +41,11 @@ void TEA::XTEAFeistelRound(uint32_t *v, bool isEncryption)
         for (int i = 0; i < 32; i++) {
             v0 += (((v1 << 4) ^ (v1 >> 5)) + v1) ^ (sum + this->key[sum & 3]);
             sum += delta;
-            v1 += (((v0 << 4) ^ (v0 >> 5)) + v0) ^ (sum + this->key[(sum>>11) & 3]);
+            v1 += (((v0 << 4) ^ (v0 >> 5)) + v0) ^ (sum + this->key[(sum >> 11) & 3]);
         }
     } else {
         for (int i = 0; i < 32; i++) {
-            v1 += (((v0 << 4) ^ (v0 >> 5)) + v0) ^ (sum + this->key[(sum>>11) & 3]);
+            v1 += (((v0 << 4) ^ (v0 >> 5)) + v0) ^ (sum + this->key[(sum >> 11) & 3]);
             sum -= delta;
             v0 += (((v1 << 4) ^ (v1 >> 5)) + v1) ^ (sum + this->key[sum & 3]);
         }
@@ -90,39 +90,60 @@ void TEA::removeAddedBytes(int bytesToRemove, QByteArray &v0, QByteArray &v1)
     v1.chop(bytesv1);
 }
 
-void TEA::encrypt(QByteArray &v0, QByteArray &v1, bool TEA, bool e)
+void TEA::encrypt(uint32_t *v, bool TEA, bool e)
 {
-    uint32_t v[2];
-
-    QDataStream streamIn0(&v0, QIODevice::ReadOnly);
-    QDataStream streamIn1(&v1, QIODevice::ReadOnly);
-    QDataStream streamOut0(&v0, QIODevice::WriteOnly);
-    QDataStream streamOut1(&v1, QIODevice::WriteOnly);
-
-    streamIn0 >> v[0];
-    streamIn1 >> v[1];
-
-    v0.clear();
-    v1.clear();
-
     if (TEA) {
         this->TEAFeistelRound(v, e);
     } else {
         this->XTEAFeistelRound(v, e);
     }
+}
 
-    streamOut0 << v[0];
-    streamOut1 << v[1];
+uint32_t TEA::uintFromByteArray(QByteArray &arr)
+{
+    uint32_t res;
+    QDataStream stream(&arr, QIODevice::ReadOnly);
+
+    stream >> res;
+
+    return res;
+}
+
+QByteArray TEA::byteArrayFromUint(uint32_t num)
+{
+    QByteArray res;
+    QDataStream stream(&res, QIODevice::WriteOnly);
+
+    stream << num;
+
+    return res;
 }
 
 TEA::TEA()
 {
     key = new uint32_t[4];
+    iv = new uint32_t[2];
+}
+
+TEA::TEA(TEA *alg)
+{
+    qDebug() << "Cudan konstruktor";
+
+    this->key = new uint32_t[4];
+    this->key[0] = alg->key[0];
+    this->key[1] = alg->key[1];
+    this->key[2] = alg->key[2];
+    this->key[3] = alg->key[3];
+
+    this->iv = new uint32_t[2];
+    this->iv[0] = alg->iv[0];
+    this->iv[1] = alg->iv[1];
 }
 
 TEA::~TEA()
 {
     delete[] key;
+    delete[] iv;
 }
 
 void TEA::runAlgo(const QString &inFile, const QString &outFile, bool encrypt, bool xMode)
@@ -146,11 +167,40 @@ void TEA::runAlgo(const QString &inFile, const QString &outFile, bool encrypt, b
             bytesAdded = getBytesAdded(input);
         }
 
+        uint32_t iv[2] = {this->iv[0], this->iv[1]};
+        uint32_t v[2];
         for (int i = encrypt ? 0 : 4; i < input.length(); i += 8) {
             QByteArray v0 = input.mid(i, 4);
             QByteArray v1 = input.mid(i + 4, 4);
 
-            this->encrypt(v0, v1, xMode, encrypt);
+            uint32_t p[2] = { this->uintFromByteArray(v0), this->uintFromByteArray(v1) };
+
+            v0.clear();
+            v1.clear();
+
+            if (encrypt) {
+                v[0] = p[0] ^ iv[0];
+                v[1] = p[1] ^ iv[1];
+            } else {
+                v[0] = p[0];
+                v[1] = p[1];
+            }
+
+            this->encrypt(v, xMode, encrypt);
+
+            if (encrypt) {
+                iv[0] = p[0] ^ v[0];
+                iv[1] = p[1] ^ v[1];
+            } else {
+                v[0] ^= iv[0];
+                v[1] ^= iv[1];
+
+                iv[0] = p[0] ^ v[0];
+                iv[1] = p[1] ^ v[1];
+            }
+
+            v0 = this->byteArrayFromUint(v[0]);
+            v1 = this->byteArrayFromUint(v[1]);
 
             if (!encrypt && i + 8 == input.length() && bytesAdded > 0) {
                 this->removeAddedBytes(bytesAdded, v0, v1);
@@ -181,13 +231,42 @@ void TEA::encryptBMP(const QString &inFile, const QString &outFile, bool encrypt
         QByteArray input = inF.readAll();
 
         uint32_t pos = input[10] + 256 * (input[11] + 256 * (input[12] + 256 * input[13]));
+        uint32_t iv[2] = {this->iv[0], this->iv[1]};
+        uint32_t v[2];
 
         for (int i = encrypt ? 0 : 4; i < input.length(); i += 8) {
             QByteArray v0 = input.mid(i, 4);
             QByteArray v1 = input.mid(i + 4, 4);
 
             if (i > pos) {
-                this->encrypt(v0, v1, xMode, encrypt);
+                uint32_t p[2] = { this->uintFromByteArray(v0), this->uintFromByteArray(v1) };
+
+                v0.clear();
+                v1.clear();
+
+                if (encrypt) {
+                    v[0] = p[0] ^ iv[0];
+                    v[1] = p[1] ^ iv[1];
+                } else {
+                    v[0] = p[0];
+                    v[1] = p[1];
+                }
+
+                this->encrypt(v, xMode, encrypt);
+
+                if (encrypt) {
+                    iv[0] = p[0] ^ v[0];
+                    iv[1] = p[1] ^ v[1];
+                } else {
+                    v[0] ^= iv[0];
+                    v[1] ^= iv[1];
+
+                    iv[0] = p[0] ^ v[0];
+                    iv[1] = p[1] ^ v[1];
+                }
+
+                v0 = this->byteArrayFromUint(v[0]);
+                v1 = this->byteArrayFromUint(v[1]);
             }
 
             outF.write(v0);
@@ -226,4 +305,23 @@ void TEA::setKey(QString key)
         }
     }
     this->keyMutex.unlock();
+}
+
+void TEA::setIV(QString IV)
+{
+    this->ivMutex.lock();
+    QString block;
+    for (int i = 0; i < IV.length(); i++) {
+        block.append(IV.at(i));
+        if ((i + 1) % 8 == 0) {
+            bool ok;
+            this->iv[((i + 1) / 8) - 1] = block.toUInt(&ok, 16);
+            block.clear();
+            if (!ok) {
+                qDebug() << "Lose";
+                return;
+            }
+        }
+    }
+    this->ivMutex.unlock();
 }

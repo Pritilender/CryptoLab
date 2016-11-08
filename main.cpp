@@ -19,6 +19,7 @@ int main(int argc, char *argv[])
     QObject::connect(&w, SIGNAL(watchModeChanged(bool)), &watcher, SLOT(watchModeChange(bool)));
 
     QObject::connect(&w, SIGNAL(keyLoad(QString)), &dispatcher, SLOT(setKey(QString)));
+    QObject::connect(&w, SIGNAL(iVLoad(QString)), &dispatcher, SLOT(setIV(QString)));
     QObject::connect(&w, SIGNAL(startAlgo(const bool)), &dispatcher, SLOT(run(const bool)));
     QObject::connect(&w, SIGNAL(outDirLoad(QString)), &dispatcher, SLOT(setOutDir(QString)));
 
