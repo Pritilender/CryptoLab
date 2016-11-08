@@ -1,6 +1,7 @@
 #include "cryptoconfig.h"
 
 #include <QTextStream>
+#include <QDebug>
 
 void CryptoConfig::readFile()
 {
@@ -14,6 +15,7 @@ void CryptoConfig::readFile()
     this->encryption = boolHelper;
 
     file >> boolHelper;
+    qDebug() << boolHelper;
     this->xMode = boolHelper;
 
     file >> boolHelper;
