@@ -55,7 +55,7 @@ QString CryptoQueue::removeFirst()
 
 QList<QString> CryptoQueue::filterForEncryption(bool encryption)
 {
-    QRegExp inExtension(encryption ? "^(?:(?!.\\.crypto).)+$" : "[.]crypto$");
+    QRegExp inExtension(encryption ? "^(?:(?!.\\.crypto).)+$" : "[.](crypto|bmp)$");
     QList<QString> removed;
     QMutableStringListIterator it(this->fileNames);
 
