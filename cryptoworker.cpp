@@ -21,12 +21,13 @@ QString CryptoWorker::getOutFileName(const QString &outPath)
     return outPath + "/" + base;
 }
 
-CryptoWorker::CryptoWorker(const bool encryption, CryptoAlgorithm *alg, const QString &inPath,
-                           const QString &outPath, QObject *parent)
+CryptoWorker::CryptoWorker(const bool encryption, const QString &inPath,
+                           const QString &outPath, uint32_t publicKey[8], uint32_t im, uint32_t privateKey[8], uint32_t n,
+                           QObject *parent)
 {
     Q_UNUSED(parent);
     this->encryption = encryption;
-    this->algorithm = new TEA((TEA *)alg);
+    this->algorithm = new Knapsack(privateKey, publicKey, im, n);
     this->inFile = inPath;
     this->outFile = getOutFileName(outPath);
 }

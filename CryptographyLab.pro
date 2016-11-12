@@ -20,7 +20,8 @@ SOURCES += main.cpp\
     cryptodispatcher.cpp \
     cryptoworker.cpp \
     cryptoconfig.cpp \
-    tea.cpp
+    tea.cpp \
+    knapsack.cpp
 
 HEADERS  += appgui.h \
     keyvalidator.h \
@@ -30,6 +31,7 @@ HEADERS  += appgui.h \
     cryptodispatcher.h \
     cryptoworker.h \
     cryptoconfig.h \
-    tea.h
+    tea.h \
+    knapsack.h
 
 FORMS    += appgui.ui

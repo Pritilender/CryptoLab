@@ -64,12 +64,12 @@ void CryptoConfig::read()
 
             emit this->inDirLoad(this->inDir);
             emit this->outDirLoad(this->outDir);
-            emit this->encryptionLoad(this->encryption);
             emit this->arrayLoad(this->array);
             emit this->nLoad(QString::number(this->n));
             emit this->mLoad(QString::number(this->m));
-            emit this->watchModeLoad(this->watchMode);
             emit this->lastTime(this->lastEncrypted);
+            emit this->watchModeLoad(this->watchMode);
+            emit this->encryptionLoad(this->encryption);
         }
     }
 }

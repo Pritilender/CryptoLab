@@ -21,7 +21,6 @@ private:
     uint32_t im;
     uint* array;
     uint* pub;
-    CryptoAlgorithm *algo;
     CryptoQueue *queue;
 
     /**
@@ -58,7 +57,6 @@ public slots:
 
     inline void setArray(QString array)
     {
-        //this->algo->setKey(key);
         QStringList ar = array.split(',');
 
         if (this->array) {

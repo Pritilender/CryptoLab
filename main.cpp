@@ -42,7 +42,7 @@ int main(int argc, char *argv[])
     QObject::connect(&config, SIGNAL(mLoad(QString)), &w, SLOT(mFile(QString)));
     QObject::connect(&config, SIGNAL(watchModeLoad(bool)), &w, SLOT(watchFile(bool)));
 //    QObject::connect(&config, SIGNAL(lastTime(uint)), &queue, SLOT(filterTime(uint)));
-    QObject::connect(&config, SIGNAL(encryptionLoad(bool)), &dispatcher, SLOT(runAlgo(bool)));
+    //QObject::connect(&config, SIGNAL(encryptionLoad(bool)), &dispatcher, SLOT(runAlgo(bool)));
 
     watcher.start();
     dispatcher.start();

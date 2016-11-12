@@ -16,9 +16,9 @@ public:
      * @param encrypt Choose encryption or decryption mode
      * @return Encrypted or decrypted string
      */
-    virtual void runAlgo(const QString &inFile, const QString &outFile, bool encrypt, bool xMode = false) = 0;
-    virtual void setKey(QString key) = 0;
-    virtual QString returnKey() = 0;
+    virtual void runAlgo(const QString &inFile, const QString &outFile, bool encrypt) = 0;
+    //virtual void setKey(QString key) = 0;
+    //virtual QString returnKey() = 0;
 };
 
 #endif // CRYPTOALGORITHM_H
