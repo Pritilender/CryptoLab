@@ -9,8 +9,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1014</width>
-    <height>376</height>
+    <width>598</width>
+    <height>432</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -26,34 +26,50 @@
    <item row="0" column="0">
     <layout class="QVBoxLayout" name="verticalLayout_2">
      <item>
-      <widget class="QLabel" name="lblKey">
+      <widget class="QLabel" name="lblArray">
        <property name="text">
-        <string>Ključ</string>
+        <string>Superrastući niz</string>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QLineEdit" name="lneKey"/>
+      <widget class="QLineEdit" name="lneArray"/>
+     </item>
+     <item>
+      <widget class="QPushButton" name="btnArrayLoad">
+       <property name="toolTip">
+        <string notr="true">Učitaj ključ iz fajla</string>
+       </property>
+       <property name="toolTipDuration">
+        <number>5000</number>
+       </property>
+       <property name="text">
+        <string>Učitaj niz</string>
+       </property>
+       <property name="flat">
+        <bool>false</bool>
+       </property>
+      </widget>
      </item>
     </layout>
    </item>
    <item row="0" column="1">
-    <layout class="QVBoxLayout" name="verticalLayout_3">
+    <widget class="QLineEdit" name="lineEdit"/>
+   </item>
+   <item row="1" column="0">
+    <layout class="QVBoxLayout" name="verticalLayout_8">
      <item>
-      <spacer name="verticalSpacer">
-       <property name="orientation">
-        <enum>Qt::Vertical</enum>
+      <widget class="QLabel" name="lblM">
+       <property name="text">
+        <string>M</string>
        </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>20</width>
-         <height>15</height>
-        </size>
-       </property>
-      </spacer>
+      </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="btnKeyLoad">
+      <widget class="QLineEdit" name="lneM"/>
+     </item>
+     <item>
+      <widget class="QPushButton" name="btnM">
        <property name="toolTip">
         <string notr="true">Učitaj ključ iz fajla</string>
        </property>
@@ -61,56 +77,36 @@
         <number>5000</number>
        </property>
        <property name="text">
-        <string>Učitaj ključ</string>
+        <string>Učitaj M</string>
        </property>
        <property name="flat">
         <bool>false</bool>
        </property>
       </widget>
-     </item>
-    </layout>
-   </item>
-   <item row="0" column="2" rowspan="4" colspan="2">
-    <layout class="QHBoxLayout" name="horizontalLayout_3">
-     <item>
-      <widget class="QGraphicsView" name="gvBefore"/>
-     </item>
-     <item>
-      <widget class="QGraphicsView" name="gvAfter"/>
-     </item>
-    </layout>
-   </item>
-   <item row="1" column="0">
-    <layout class="QVBoxLayout" name="verticalLayout_10">
-     <item>
-      <widget class="QLabel" name="lblIV">
-       <property name="text">
-        <string>Input vector</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QLineEdit" name="lneIV"/>
      </item>
     </layout>
    </item>
    <item row="1" column="1">
-    <layout class="QVBoxLayout" name="verticalLayout_9">
+    <widget class="QLabel" name="label">
+     <property name="text">
+      <string>TextLabel</string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="0">
+    <layout class="QVBoxLayout" name="verticalLayout_7">
      <item>
-      <spacer name="verticalSpacer_5">
-       <property name="orientation">
-        <enum>Qt::Vertical</enum>
+      <widget class="QLabel" name="lblN">
+       <property name="text">
+        <string>N</string>
        </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>20</width>
-         <height>15</height>
-        </size>
-       </property>
-      </spacer>
+      </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="btnIVLoad">
+      <widget class="QLineEdit" name="lneN"/>
+     </item>
+     <item>
+      <widget class="QPushButton" name="btnN">
        <property name="toolTip">
         <string notr="true">Učitaj ključ iz fajla</string>
        </property>
@@ -118,7 +114,7 @@
         <number>5000</number>
        </property>
        <property name="text">
-        <string>Učitaj IV</string>
+        <string>Učitaj N</string>
        </property>
        <property name="flat">
         <bool>false</bool>
@@ -127,7 +123,7 @@
      </item>
     </layout>
    </item>
-   <item row="2" column="0">
+   <item row="3" column="0">
     <layout class="QVBoxLayout" name="verticalLayout">
      <item>
       <widget class="QLabel" name="lblInputDir">
@@ -138,23 +134,6 @@
      </item>
      <item>
       <widget class="QLineEdit" name="lneInputDir"/>
-     </item>
-    </layout>
-   </item>
-   <item row="2" column="1">
-    <layout class="QVBoxLayout" name="verticalLayout_4">
-     <item>
-      <spacer name="verticalSpacer_2">
-       <property name="orientation">
-        <enum>Qt::Vertical</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>20</width>
-         <height>15</height>
-        </size>
-       </property>
-      </spacer>
      </item>
      <item>
       <widget class="QPushButton" name="btnInputDir">
@@ -168,7 +147,7 @@
      </item>
     </layout>
    </item>
-   <item row="3" column="0">
+   <item row="4" column="0">
     <layout class="QVBoxLayout" name="verticalLayout_6">
      <item>
       <widget class="QLabel" name="lblOutputDir">
@@ -179,23 +158,6 @@
      </item>
      <item>
       <widget class="QLineEdit" name="lneOutputDir"/>
-     </item>
-    </layout>
-   </item>
-   <item row="3" column="1">
-    <layout class="QVBoxLayout" name="verticalLayout_5">
-     <item>
-      <spacer name="verticalSpacer_3">
-       <property name="orientation">
-        <enum>Qt::Vertical</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>20</width>
-         <height>15</height>
-        </size>
-       </property>
-      </spacer>
      </item>
      <item>
       <widget class="QPushButton" name="btnOutputDir">
@@ -209,7 +171,7 @@
      </item>
     </layout>
    </item>
-   <item row="4" column="0" colspan="2">
+   <item row="5" column="0">
     <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
       <widget class="QCheckBox" name="cbxWatch">
@@ -239,37 +201,6 @@
       </widget>
      </item>
     </layout>
-   </item>
-   <item row="4" column="2">
-    <layout class="QHBoxLayout" name="horizontalLayout_2">
-     <item>
-      <widget class="QCheckBox" name="cbxBMP">
-       <property name="text">
-        <string>BMP mod</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QPushButton" name="btnNext">
-       <property name="text">
-        <string>Naredna slika</string>
-       </property>
-      </widget>
-     </item>
-    </layout>
-   </item>
-   <item row="4" column="3">
-    <spacer name="horizontalSpacer">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-     <property name="sizeHint" stdset="0">
-      <size>
-       <width>354</width>
-       <height>20</height>
-      </size>
-     </property>
-    </spacer>
    </item>
   </layout>
  </widget>

@@ -6,6 +6,7 @@
 #include <QGraphicsView>
 #include <QWidget>
 #include <QGraphicsTextItem>
+#include <QLineEdit>
 
 #define REG_BLOCK 14
 #define REG_SPACE 20
@@ -24,46 +25,42 @@ class appGui : public QWidget
     Q_OBJECT
 
 private:
-    bool canRun();
+    void loadFile(QLineEdit* lne);
+    void emitEncryption(bool enc);
 
 public:
-    explicit appGui(CryptoQueue* q, QWidget *parent = 0);
+    explicit appGui(CryptoQueue *q, QWidget *parent = 0);
     ~appGui();
-    CryptoQueue* q;
+    CryptoQueue *q;
     QPixmap beforeBMP, afterBMP;
     QGraphicsScene beforeScene, afterScene;
 
 private slots:
     void on_btnEncrypt_clicked();
-    void on_btnKeyLoad_clicked();
     void on_btnInputDir_clicked();
     void on_btnOutputDir_clicked();
     void on_btnDecrypt_clicked();
     void on_cbxWatch_clicked(bool checked);
     void inDirFile(const QString &inDir);
     void outDirFile(const QString &output);
-    void keyFile(const QString &key);
+    void arrayFile(const QString &array);
     void watchFile(const bool watch);
-    void on_btnIVLoad_clicked();
-
-    void on_cbxBMP_clicked(bool checked);
+    void on_btnArrayLoad_clicked();
+    void on_btnM_clicked();
+    void on_btnN_clicked();
+    void nFile(const QString &n);
+    void mFile(const QString &m);
 
 public slots:
-    void on_btnNext_clicked();
-    void setBeforeBMP(QString bB);
-    void setAfterBMP(QString aB);
 
 signals:
     void inDirLoad(const QString);
     void outDirLoad(const QString);
-    void keyLoad(const QString);
+    void arrayLoad(const QString);
+    void mLoad(const QString);
+    void nLoad(const QString);
     void watchModeChanged(const bool);
     void startAlgo(const bool);
-    void simulationChanged(const bool);
-    void nextStep(void);
-    void iVLoad(const QString);
-    void BMPModeChanged(const bool);
-    void nextClicked(void);
 
 private:
     Ui::appGui *ui;

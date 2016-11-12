@@ -5,6 +5,8 @@
 #include <cryptoqueue.h>
 #include <tea.h>
 
+#define DATA 8
+
 class CryptoDispatcher: public QThread
 {
     Q_OBJECT
@@ -13,12 +15,14 @@ private:
     bool runMode = false;
     bool encryption = true;
     bool appRunning = true;
-    bool xMode = false;
-    bool bmpMode = false;
-    bool next = false;
     QString outDir;
-    CryptoAlgorithm* algo;
-    CryptoQueue* queue;
+    uint32_t m;
+    uint32_t n;
+    uint32_t im;
+    uint* array;
+    uint* pub;
+    CryptoAlgorithm *algo;
+    CryptoQueue *queue;
 
     /**
      * @brief Dispatch a thread
@@ -28,17 +32,16 @@ private:
     void dispatchAllAndWait();
     void dispatchAllAndStop();
 public:
-    CryptoDispatcher(CryptoQueue* q);
+    CryptoDispatcher(CryptoQueue *q);
     ~CryptoDispatcher();
     void run() Q_DECL_OVERRIDE;
 
 signals:
     void writeConfig();
-    void inBMP(QString);
-    void outBMP(QString);
 
 public slots:
-    inline void setEncryption(bool enc) {
+    inline void setEncryption(bool enc)
+    {
         this->encryption = enc;
     }
 
@@ -53,38 +56,31 @@ public slots:
         emit writeConfig();
     }
 
-    inline void setKey(QString key) {
-        this->algo->setKey(key);
+    inline void setArray(QString array)
+    {
+        //this->algo->setKey(key);
+        QStringList ar = array.split(',');
+
+        if (this->array) {
+            delete [] this->array;
+        }
+        this->array = new uint[ar.length()];
+
+        for (int i = 0; i < ar.length(); i++) {
+            this->array[i] = ar.at(i).toUInt();
+        }
     }
 
-    inline void run(const bool enc) {
-        this->queue->filterForEncryption(enc);
-        this->encryption = enc;
-        this->runMode = true;
+    void runAlgo(const bool enc);
+
+    inline void setM(QString m)
+    {
+        this->m = m.toUInt();
     }
 
-    inline void setXMode(const bool xMode) {
-        this->xMode = xMode;
-    }
-
-    inline void setIV(QString iv) {
-        ((TEA*)this->algo)->setIV(iv);
-    }
-
-    inline void inBMPReady(QString iB) {
-        emit this->inBMP(iB);
-    }
-
-    inline void outBMPReady(QString oB) {
-        emit this->outBMP(oB);
-    }
-
-    inline void nextBMP() {
-        this->next = true;
-    }
-
-    inline void setBMPMode(bool bM) {
-        this->bmpMode = bM;
+    inline void setN(QString n)
+    {
+        this->n = n.toUInt();
     }
 };
 

@@ -15,15 +15,15 @@ void CryptoConfig::readFile()
     this->encryption = boolHelper;
 
     file >> boolHelper;
-    qDebug() << boolHelper;
-    this->xMode = boolHelper;
-
-    file >> boolHelper;
     this->watchMode = boolHelper;
 
     file >> this->inDir;
     file >> this->outDir;
-    file >> this->key;
+
+    file >> this->n;
+    file >> this->m;
+
+    file >> this->array;
 }
 
 void CryptoConfig::writeFile()
@@ -36,13 +36,13 @@ void CryptoConfig::writeFile()
 
         file << this->encryption << "\n";
 
-        file << this->xMode << "\n";
-
         file << this->watchMode << "\n";
 
         file << this->inDir << "\n";
         file << this->outDir << "\n";
-        file << this->key << "\n";
+        file << this->n << "\n";
+        file << this->m << "\n";
+        file << this->array << "\n";
 
         this->configFile->close();
     }
@@ -65,10 +65,11 @@ void CryptoConfig::read()
             emit this->inDirLoad(this->inDir);
             emit this->outDirLoad(this->outDir);
             emit this->encryptionLoad(this->encryption);
-            emit this->keyLoad(this->key);
+            emit this->arrayLoad(this->array);
+            emit this->nLoad(QString::number(this->n));
+            emit this->mLoad(QString::number(this->m));
             emit this->watchModeLoad(this->watchMode);
             emit this->lastTime(this->lastEncrypted);
-            emit this->xModeLoad(this->xMode);
         }
     }
 }
