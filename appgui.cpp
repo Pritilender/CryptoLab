@@ -151,10 +151,9 @@ void appGui::mFile(const QString &m)
 
 void appGui::on_lineEdit_textChanged(const QString &arg1)
 {
-    qDebug() << arg1;
-    QByteArray bytes(arg1.toLatin1(), arg1.length());
-    qDebug() << bytes;
+    this->ui->lblOut->setTextFormat(Qt::RichText);
 
+    QByteArray bytes(arg1.toLatin1(), arg1.length());
 
     uint32_t pKey[8];
     QStringList arrSplit = this->ui->lneArray->text().split(',');
@@ -166,11 +165,11 @@ void appGui::on_lineEdit_textChanged(const QString &arg1)
     QByteArray res = Knapsack::encryptByKnapsack(bytes, pKey);
 
     QString txt;
-    for (int i = 0; i < res.length(); i++) {
-        txt.append(QChar(res[i]));
+
+    for (int i = 0; i < res.length(); i += 4) {
+        txt.append(QString::number(QString(res.mid(i, 4).toHex()).toInt(nullptr, 16)) + QChar(' '));
     }
 
-    qDebug() << res << txt;
     this->ui->lblOut->setText(txt);
 }
 
@@ -179,22 +178,20 @@ void appGui::on_lineEdit_selectionChanged()
     qDebug() << this->ui->lineEdit->selectedText();
 
     QString lbl = this->ui->lblOut->text();
+    lbl.remove(QRegExp("<\\/*b>"));
+
     QString res;
     int selStart = this->ui->lineEdit->selectionStart();
     int selEnd = selStart + this->ui->lineEdit->selectedText().length();
 
-
-    //ovako nesto...
     for (int i = 0; i < lbl.length(); i++) {
-        if (i == selStart) {
+        if (i == selStart * 4) {
             res.append("<b>");
-        } else if (i == selEnd) {
+        } else if (i == selEnd * 4) {
             res.append("</b>");
         }
         res.append(lbl.at(i));
     }
-
-    this->ui->lblOut->setTextFormat(Qt::RichText);
 
     this->ui->lblOut->setText(res);
 }

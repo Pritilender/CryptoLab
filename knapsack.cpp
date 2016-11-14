@@ -74,10 +74,10 @@ void Knapsack::runAlgo(const QString &inFile, const QString &outFile, bool encry
     if (inF.open(QIODevice::ReadOnly) && outF.open(QIODevice::WriteOnly)) {
         QByteArray input = inF.readAll();
         if (encrypt) {
-            outF.write(encryptByKnapsack(input, this->publicKey));
+            outF.write(Knapsack::encryptByKnapsack(input, this->publicKey));
         }
         else {
-            outF.write(decryptByKnapsack(input, this->privateKey, this->im, this->n));
+            outF.write(Knapsack::decryptByKnapsack(input, this->privateKey, this->im, this->n));
         }
         outF.commit();
         inF.close();
