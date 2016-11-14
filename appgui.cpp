@@ -7,6 +7,7 @@
 #include "QFile"
 #include "QTextStream"
 #include "QDirIterator"
+#include "cryptoworker.h"
 
 #include "QDebug"
 
@@ -146,4 +147,54 @@ void appGui::nFile(const QString &n)
 void appGui::mFile(const QString &m)
 {
     this->ui->lneM->setText(m);
+}
+
+void appGui::on_lineEdit_textChanged(const QString &arg1)
+{
+    qDebug() << arg1;
+    QByteArray bytes(arg1.toLatin1(), arg1.length());
+    qDebug() << bytes;
+
+
+    uint32_t pKey[8];
+    QStringList arrSplit = this->ui->lneArray->text().split(',');
+
+    for (int i = 0; i < 8; i++) {
+        pKey[i] = arrSplit[i].toUInt();
+    }
+
+    QByteArray res = Knapsack::encryptByKnapsack(bytes, pKey);
+
+    QString txt;
+    for (int i = 0; i < res.length(); i++) {
+        txt.append(QChar(res[i]));
+    }
+
+    qDebug() << res << txt;
+    this->ui->lblOut->setText(txt);
+}
+
+void appGui::on_lineEdit_selectionChanged()
+{
+    qDebug() << this->ui->lineEdit->selectedText();
+
+    QString lbl = this->ui->lblOut->text();
+    QString res;
+    int selStart = this->ui->lineEdit->selectionStart();
+    int selEnd = selStart + this->ui->lineEdit->selectedText().length();
+
+
+    //ovako nesto...
+    for (int i = 0; i < lbl.length(); i++) {
+        if (i == selStart) {
+            res.append("<b>");
+        } else if (i == selEnd) {
+            res.append("</b>");
+        }
+        res.append(lbl.at(i));
+    }
+
+    this->ui->lblOut->setTextFormat(Qt::RichText);
+
+    this->ui->lblOut->setText(res);
 }

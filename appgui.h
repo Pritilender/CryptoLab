@@ -50,6 +50,9 @@ private slots:
     void on_btnN_clicked();
     void nFile(const QString &n);
     void mFile(const QString &m);
+    void on_lineEdit_textChanged(const QString &arg1);
+
+    void on_lineEdit_selectionChanged();
 
 public slots:
 

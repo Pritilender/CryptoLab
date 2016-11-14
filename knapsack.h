@@ -16,6 +16,8 @@ public:
     ~Knapsack(){}
     Knapsack(uint32_t* privateKey, uint32_t* publicKey, uint32_t im, uint32_t n);
     void runAlgo(const QString &inFile, const QString &outFile, bool encrypt);
+    static QByteArray encryptByKnapsack(QByteArray input, uint32_t *publicKey);
+    static QByteArray decryptByKnapsack(QByteArray input, uint32_t *privateKey, uint32_t im, uint32_t n);
 };
 
 #endif // KNAPSACK_H
